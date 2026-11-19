@@ -1,0 +1,1030 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Grundfläche · Höhe trainieren</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Layout: Kopfband mit Logo rechts, Seitennavigation links (Themen V, 1–4), Inhalt rechts; auf dem Handy Navigation als Klappmenü. Mathe = dunkelblau */
+:root{
+  --bg:#f1f4fa; --surface:#ffffff; --fg:#141f38; --muted:#56627b; --line:#d5dcea;
+  --band:#13285a; --band-fg:#ffffff; --accent:#3a6fd9; --accent-ink:#1d47a3; --accent-soft:#e3ebfb;
+  --ok:#2e7d32; --ok-soft:#e5f3e6; --bad:#c62828; --bad-soft:#fbe7e7; --chip:#e6ebf5;
+  --sign:#cc1f1f; --sign-in:#ffffff; --sign-ink:#141414;
+  --f-head:"Bitter", Georgia, serif; --f-body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1324; --surface:#151e35; --fg:#e4eaf7; --muted:#a0abc3; --line:#27324f;
+  --band:#0e1d45; --band-fg:#f1f5fd; --accent:#6f9cff; --accent-ink:#a8c3ff; --accent-soft:#1b2a4f;
+  --ok:#7fd483; --ok-soft:#1c3320; --bad:#ff8a80; --bad-soft:#3a1e1e; --chip:#202b47;
+  --sign:#e04848; --sign-in:#f4f4f4; --sign-ink:#141414; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1324; --surface:#151e35; --fg:#e4eaf7; --muted:#a0abc3; --line:#27324f;
+  --band:#0e1d45; --band-fg:#f1f5fd; --accent:#6f9cff; --accent-ink:#a8c3ff; --accent-soft:#1b2a4f;
+  --ok:#7fd483; --ok-soft:#1c3320; --bad:#ff8a80; --bad-soft:#3a1e1e; --chip:#202b47;
+  --sign:#e04848; --sign-in:#f4f4f4; --sign-ink:#141414; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:17px;line-height:1.55}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--band)}
+header.top{background:var(--band);color:var(--band-fg);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+.top-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:14px;padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.top h1{font-family:var(--f-head);font-size:1.3rem;margin:0;line-height:1.2;text-wrap:balance}
+.top .sub{font-size:.8rem;opacity:.85;letter-spacing:.04em}
+.top .ttl{flex:1;min-width:0}
+.logo{background:#ffffff;border-radius:8px;padding:5px 9px;display:flex;align-items:center;flex-shrink:0}
+.logo img{height:30px;width:auto;display:block}
+.menu-btn{display:none;background:transparent;border:1px solid rgba(255,255,255,.5);color:var(--band-fg);border-radius:6px;padding:6px 10px;font:inherit;font-size:.9rem;cursor:pointer}
+.wrap{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:260px minmax(0,1fr);gap:32px;padding-block:24px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+nav.side{position:sticky;top:calc(env(safe-area-inset-top,0px) + 76px);align-self:start;display:flex;flex-direction:column;gap:2px}
+.side .grp{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:14px 0 4px 10px;font-weight:700}
+.side a{display:flex;gap:10px;align-items:center;padding:7px 10px;border-radius:7px;color:var(--fg);text-decoration:none;font-size:.95rem}
+.side a .n{font-size:.75rem;font-weight:700;min-width:30px;height:22px;border-radius:11px;background:var(--chip);display:flex;align-items:center;justify-content:center;color:var(--muted);font-variant-numeric:tabular-nums}
+.side a:hover{background:var(--chip)}
+.side a.on{background:var(--band);color:var(--band-fg)}
+.side a.on .n{background:var(--band-fg);color:var(--band)}
+main{min-width:0}
+main h2{font-family:var(--f-head);font-size:1.75rem;margin:0 0 6px;line-height:1.2;text-wrap:balance;color:var(--fg)}
+main h3{font-family:var(--f-head);font-size:1.2rem;margin:0 0 10px}
+.lead{color:var(--muted);max-width:68ch;margin:0 0 20px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 18px;border-bottom:2px solid var(--line)}
+.tabs button{font:inherit;font-weight:600;background:none;border:none;padding:8px 14px;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px}
+.tabs button.on{color:var(--fg);border-bottom-color:var(--accent)}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px 22px;margin-bottom:16px}
+.goalbox{border-left:5px solid var(--accent)}
+.theory{max-width:72ch}
+.theory p{margin:0 0 12px}
+.theory ul,.theory ol{margin:0 0 12px;padding-left:22px}
+.theory b{color:var(--accent-ink)}
+.formel{font-family:var(--f-head);font-size:1.15rem;background:var(--chip);border-radius:8px;padding:10px 14px;margin:10px 0 14px;display:inline-block}
+.merk{background:var(--accent-soft);border-radius:8px;padding:12px 16px;margin:14px 0}
+.merk::before{content:"Merke";display:block;font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-ink);margin-bottom:4px}
+.fig{margin:10px 0 16px;overflow-x:auto}
+.fig svg{display:block;max-width:100%;height:auto}
+.fig .cap{font-size:.85rem;color:var(--muted);margin-top:4px}
+svg .grid{stroke:var(--line);stroke-width:1}
+svg .ax{stroke:var(--muted);stroke-width:1.5}
+svg .ln{stroke:var(--accent-ink);stroke-width:3;fill:none}
+svg .tri{fill:var(--accent-soft);stroke:var(--accent);stroke-width:2}
+svg .wedge{fill:var(--accent-soft);stroke:var(--accent-ink);stroke-width:2}
+svg .hyp{stroke:var(--accent);stroke-width:3}
+svg .pt{fill:var(--accent-ink)}
+svg .ln2{stroke:var(--bad);stroke-width:3;fill:none} svg .ln3{stroke:var(--ok);stroke-width:3;fill:none}
+svg text.lnt{fill:var(--accent-ink)} svg text.ln2t{fill:var(--bad)} svg text.ln3t{fill:var(--ok)}
+.q .fig{margin:6px 0 10px}
+svg text{fill:var(--fg);font-family:var(--f-body);font-size:14px}
+svg text.s{fill:var(--muted);font-size:12px}
+svg .sgn{fill:var(--sign)} svg .sgi{fill:var(--sign-in)} svg .sgk{fill:var(--sign-ink)}
+svg text.sgt{fill:var(--sign-ink);font-weight:700;font-size:30px}
+.tblwrap{overflow-x:auto;margin:10px 0 14px}
+table.t{border-collapse:collapse;min-width:420px;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+table.t th,table.t td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+table.t th{background:var(--chip)}
+.goal{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.goal input{width:20px;height:20px;margin-top:3px;accent-color:var(--accent-ink);flex-shrink:0}
+.goal .txt{flex:1;min-width:0}
+.goal .meta{font-size:.8rem;color:var(--muted)}
+.goal a.go{font-size:.85rem;font-weight:600;color:var(--accent-ink);text-decoration:none;white-space:nowrap;padding:4px 9px;border-radius:6px;background:var(--accent-soft)}
+.goals{display:flex;flex-direction:column;gap:8px}
+.stars{color:var(--accent-ink);font-weight:700;letter-spacing:1px}
+.prog{height:8px;background:var(--chip);border-radius:4px;overflow:hidden;margin:6px 0 14px}
+.prog div{height:100%;background:var(--accent);width:0;transition:width .3s}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:12px}
+.q .head{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.tag{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:10px;background:var(--chip);color:var(--muted)}
+.tag.b{background:var(--accent-soft);color:var(--accent-ink)}
+.q .qt{font-weight:600;margin:0 0 10px}
+.opts{display:flex;flex-direction:column;gap:6px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:7px 10px;border:1px solid var(--line);border-radius:7px;cursor:pointer}
+.opt input{margin-top:4px;accent-color:var(--accent-ink)}
+.opt.ok{border-color:var(--ok);background:var(--ok-soft)}
+.opt.bad{border-color:var(--bad);background:var(--bad-soft)}
+.numrow{display:flex;gap:8px;align-items:center}
+.numrow input{font:inherit;width:9em;max-width:100%;padding:6px 8px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font-variant-numeric:tabular-nums}
+.numrow input.ok{border-color:var(--ok);background:var(--ok-soft)}
+.numrow input.bad{border-color:var(--bad);background:var(--bad-soft)}
+.hint{font-size:.85rem;color:var(--muted);margin-top:6px}
+.match{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 12px;align-items:center}
+.match select{font:inherit;font-size:.95rem;padding:6px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--fg);width:100%}
+.match select.ok{border-color:var(--ok);background:var(--ok-soft)}
+.match select.bad{border-color:var(--bad);background:var(--bad-soft)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.btn{font:inherit;font-weight:600;border:none;border-radius:7px;padding:8px 16px;cursor:pointer;background:var(--band);color:var(--band-fg)}
+.btn.sec{background:var(--chip);color:var(--fg)}
+.btn:focus-visible,.side a:focus-visible,.tabs button:focus-visible,.goal a.go:focus-visible,.numrow input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.fb{margin-top:10px;padding:9px 12px;border-radius:7px;font-size:.95rem}
+.fb.ok{background:var(--ok-soft);color:var(--fg);border-left:4px solid var(--ok)}
+.fb.bad{background:var(--bad-soft);color:var(--fg);border-left:4px solid var(--bad)}
+.write textarea{width:100%;min-height:90px;font:inherit;padding:8px;border-radius:7px;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+.sol{margin-top:10px;background:var(--accent-soft);border-radius:8px;padding:10px 14px}
+.score{font-family:var(--f-head);font-size:2.2rem;font-variant-numeric:tabular-nums}
+.foot{font-size:.82rem;color:var(--muted);margin-top:28px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;text-decoration:none;color:var(--fg);display:flex;flex-direction:column;gap:4px}
+.card:hover{border-color:var(--accent)}
+.card .n{font-size:.8rem;color:var(--accent-ink);font-weight:700}
+.card b{font-family:var(--f-head)}
+.card .m{font-size:.82rem;color:var(--muted)}
+@media (max-width:820px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:16px}
+  .menu-btn{display:inline-block}
+  nav.side{position:static;display:none;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px}
+  nav.side.open{display:flex}
+  .top h1{font-size:1.05rem}
+  .logo img{height:24px}
+  .match{grid-template-columns:minmax(0,1fr)}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.86em;line-height:1.12;margin:0 2px}
+.fr>span:first-child{border-bottom:1.6px solid currentColor;padding:0 3px}
+.fr>span:last-child{padding:0 3px}
+.eq{white-space:nowrap;font-weight:600}
+.lzs{display:block;font-size:.75rem;opacity:.75}
+.side a.on .lzs{opacity:.85}
+.lzl{margin:4px 0}
+details.th summary{cursor:pointer;list-style:none;display:flex;align-items:baseline;gap:12px}
+details.th summary::-webkit-details-marker{display:none}
+details.th summary h3{margin:0}
+details.th[open] summary{margin-bottom:12px}
+.blkhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 4px}
+.blkhead h3{margin:0;font-size:1.35rem}
+.q.done{border-color:var(--ok)}
+.q .st{margin-left:auto;color:var(--ok);font-weight:700;font-size:1.2rem}
+.q .qt{line-height:1.9}
+.opts.row3{flex-direction:row;flex-wrap:wrap}
+.opts.row3 .opt{flex:0 1 auto;min-width:8em}
+.opt span{line-height:1.9}
+.nl{display:inline-flex;align-items:center;gap:6px;font-weight:600;margin-right:12px}
+.numrow{flex-wrap:wrap}
+.numrow input,.ti{font:inherit;width:8em;max-width:100%;padding:6px 8px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font-variant-numeric:tabular-nums}
+.ti{width:4.2em;padding:3px 5px}
+.ti.ok,.numrow input.ok{border-color:var(--ok);background:var(--ok-soft)}
+.ti.bad,.numrow input.bad{border-color:var(--bad);background:var(--bad-soft)}
+table.tb{min-width:0;width:auto}
+table.tb td,table.tb th{text-align:center;min-width:3.2em}
+svg.ksi{cursor:crosshair;touch-action:manipulation}
+svg .hit{fill:transparent}
+svg .upt{fill:var(--accent);stroke:var(--surface);stroke-width:2}
+svg .upt.bad{fill:var(--bad)} svg .uln.bad{stroke:var(--bad)}
+svg .spt{fill:none;stroke:var(--ok);stroke-width:3}
+svg text.tl{fill:var(--accent-ink)}
+.sol{line-height:1.9}
+.fb{line-height:1.9}
+.foot a{color:var(--accent-ink)}
+.btn{text-decoration:none;display:inline-block}
+[hidden]{display:none!important}
+.pane .theory{max-width:none}svg .fa{fill:var(--accent-soft);stroke:var(--fg);stroke-width:2;stroke-linejoin:round}
+svg .fb{fill:var(--ok-soft);stroke:var(--fg);stroke-width:2;stroke-linejoin:round}
+svg .fw{fill:var(--surface);stroke:var(--fg);stroke-width:2}
+svg .fn{fill:none;stroke:var(--fg);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+svg .ff{stroke:none}
+svg .hid{stroke-width:1.5}
+svg .thin{fill:none;stroke:var(--fg);stroke-width:1.2}
+svg .dot{fill:var(--fg);stroke:none}
+svg .hl{fill:none;stroke:var(--bad);stroke-width:2}
+svg .dsh{stroke-dasharray:6 4}
+svg text.hlt{fill:var(--bad)}
+svg .sgl{stroke:var(--fg);stroke-width:2.4;stroke-linecap:round}
+svg .sgl.ok{stroke:var(--ok)}
+svg.clk path:not(.reg),svg.clk text{pointer-events:none}
+svg path.reg{cursor:pointer;transition:fill .15s}
+svg path.reg:hover{fill:var(--chip)}
+svg path.reg.sel{fill:#ffd966}
+svg path.reg.oksel,svg path.reg.solr{fill:var(--ok-soft);stroke:var(--ok);stroke-width:3}
+svg path.reg.badsel{fill:var(--bad-soft)}
+svg .stp{fill:var(--bad);stroke:var(--surface);stroke-width:2}
+svg .ept{fill:var(--fg)}
+svg .usl{stroke:var(--accent-ink)}
+svg .usl.ok{stroke:var(--ok)}
+svg .solg{stroke:var(--ok);stroke-width:3;opacity:.75}
+.sktools{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:4px 0 2px}
+.sktools .btn{padding:6px 12px;font-size:.92rem}
+.sktools .btn.on{background:var(--band);color:var(--band-fg)}
+.tag.nv{letter-spacing:.02em}
+.tag.nv1{background:var(--ok-soft);color:var(--ok)}
+.tag.nv2{background:#fff1d6;color:#9a5b00}
+.tag.nv3{background:var(--bad-soft);color:var(--bad)}
+:root[data-theme="dark"] .tag.nv2{background:#3a2e14;color:#ffc56b}
+.nvrow{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:2px 0 4px}
+.nvrow .btn{padding:6px 12px;font-size:.9rem}
+.nvrow .btn.on{background:var(--band);color:var(--band-fg)}
+.teilh{font-weight:700;color:var(--accent-ink);margin:12px 0 2px;font-size:.92rem}
+.teilh:first-child{margin-top:4px}
+.figgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:12px 0 16px}
+.fcard{border:1px solid var(--line);border-radius:8px;padding:8px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
+.fcard svg{max-width:100%;height:auto}
+.fn2{font-size:.85rem;color:var(--muted)}
+.fo{font-weight:700;color:var(--accent-ink);line-height:1.35}
+</style>
+</head>
+<body>
+
+
+<header class="top"><div class="top-in">
+  <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="side">☰ Menü</button>
+  <div class="ttl"><div class="sub">Mathematik · mathbuch 2 · LU 19 · Grundfläche · Höhe</div><h1>Grundfläche · Höhe: Flächen, Prismen, Volumen</h1></div>
+  <div class="logo"><img alt="flade" src="data:image/png;base64,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"></div>
+</div></header>
+
+<div class="wrap">
+  <nav class="side" id="side" aria-label="Themen"></nav>
+  <main id="main"></main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+/* =========================================================
+   Lernseite LU 19 Grundfläche · Höhe – Üben nach Lernzielen
+   Jede Aufgabe wird zufällig erzeugt: neu laden = neue Aufgaben
+   ========================================================= */
+function kesc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
+let RNG=Math.random;
+const R=(a,b)=>a+Math.floor(RNG()*(b-a+1));
+const pick=a=>a[Math.floor(RNG()*a.length)];
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(RNG()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function F(n,dd=2){const f=10**dd;n=Math.round(n*f)/f;if(Object.is(n,-0))n=0;const neg=n<0;n=Math.abs(n);let [i,d]=String(n).split('.');if(i.length>3)i=i.replace(/\B(?=(\d{3})+(?!\d))/g,"'");return (neg?'−':'')+i+(d?','+d:'');}
+const F4=n=>F(n,4);
+const r1=v=>Math.round(v*10)/10;
+const PI=Math.PI;
+const half=(a,b)=>RNG()<.35?R(a,b-1)+.5:R(a,b);
+const NAMES=['Lea','Jonas','Elif','Noah','Mia','Luca','Sara','Nino','Aylin','Tim'];
+
+/* ---------- Figuren: Modell → SVG ---------- */
+const fP=(pts,o={})=>Object.assign({t:'p',pts},o);
+const fT=(p,s,o={})=>Object.assign({t:'t',p,s},o);
+const fL=(a,b,o={})=>fP([a,b],Object.assign({close:false,cls:'fn'},o));
+function fRA(c,u1,u2,s){return fP([[c[0]+u1[0]*s,c[1]+u1[1]*s],[c[0]+(u1[0]+u2[0])*s,c[1]+(u1[1]+u2[1])*s],[c[0]+u2[0]*s,c[1]+u2[1]*s]],{close:false,cls:'thin'})}
+function arcE(cx,cy,rx,ry,t0,t1,n=40){const a=[];for(let k=0;k<=n;k++){const t=t0+(t1-t0)*k/n;a.push([cx+rx*Math.cos(t),cy+ry*Math.sin(t)])}return a}
+function bbox(items){let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;items.forEach(it=>(it.t==='p'?it.pts:[it.p]).forEach(([x,y])=>{if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}));return[x0,y0,x1,y1]}
+function svgFig(items,o={}){
+  const [ax0,ay0,ax1,ay1]=bbox(items.filter(i=>i.t==='p'));const w=Math.max(ax1-ax0,.5),h=Math.max(ay1-ay0,.5);
+  const s=o.s||Math.min(o.maxS||34,(o.maxW||330)/w,(o.maxH||220)/h);
+  let x0=ax0,x1=ax1,y0=ay0,y1=ay1;
+  items.filter(i=>i.t==='t').forEach(t=>{const tw=String(t.s).length*7.4/s;const[x,y]=t.p;let l=x,r=x;if(t.a==='s')r=x+tw;else if(t.a==='e')l=x-tw;else{l=x-tw/2;r=x+tw/2}x0=Math.min(x0,l);x1=Math.max(x1,r);y0=Math.min(y0,y-9/s);y1=Math.max(y1,y+9/s)});
+  const p=8,W=(x1-x0)*s+2*p,H=(y1-y0)*s+2*p,X=x=>(p+(x-x0)*s).toFixed(1),Y=y=>(p+(y1-y)*s).toFixed(1);
+  let out='<svg viewBox="0 0 '+W.toFixed(1)+' '+H.toFixed(1)+'" width="'+W.toFixed(0)+'" role="img" aria-label="'+kesc(o.label||'Figur')+'"'+(o.cls?' class="'+o.cls+'"':'')+'>';
+  items.forEach(it=>{if(it.t==='p'){const d=it.pts.map(([x,y],i)=>(i?'L':'M')+X(x)+' '+Y(y)).join(' ')+(it.close===false?'':' Z');
+      out+='<path d="'+d+'" class="'+(it.cls||'fn')+(it.dash?' dsh':'')+(it.reg?' reg':'')+'"'+(it.reg?' data-r="'+it.reg+'"':'')+'/>'}
+    else out+='<text x="'+X(it.p[0])+'" y="'+(+Y(it.p[1])+5).toFixed(1)+'" text-anchor="'+({s:'start',e:'end'}[it.a]||'middle')+'"'+(it.c?' class="'+it.c+'"':'')+(it.b?' style="font-weight:700"':'')+'>'+kesc(it.s)+'</text>'});
+  return out+'</svg>'}
+
+/* ---------- 2D-Figuren ---------- */
+function figRect(a,b,la,lb){return[fP([[0,0],[a,0],[a,b],[0,b]],{cls:'fa'}),fT([a/2,-.5],la),fT([a+.25,b/2],lb,{a:'s'})]}
+function figTri(g,h,o,lg,lh,ls){const s=Math.max(g,h)*.05;const it=[fP([[0,0],[g,0],[o,h]],{cls:'fa'}),fL([o,h],[o,0],{cls:'hl',dash:1}),fRA([o,0],[1,0],[0,1],s),fT([g/2,-.5],lg)];
+  if(lh)it.push(fT([o-.15,h*.45],lh,{a:'e',c:'hlt'}));if(ls)it.push(fT([(o+g)/2+.25,h/2+.1],ls,{a:'s'}));return it}
+function figPar(g,h,o,lg,lh,ls){const s=Math.max(g,h)*.05;const it=[fP([[0,0],[g,0],[g+o,h],[o,h]],{cls:'fa'}),fL([o,h],[o,0],{cls:'hl',dash:1}),fRA([o,0],[1,0],[0,1],s),fT([g/2,-.5],lg)];
+  if(lh)it.push(fT([o+.15,h*.45],lh,{a:'s',c:'hlt'}));if(ls)it.push(fT([o/2-.25,h/2],ls,{a:'e'}));return it}
+function figTrap(a,c,h,o1,la,lc,lh){const s=Math.max(a,h)*.05,o=Math.max(o1,.6);const it=[fP([[0,0],[a,0],[o1+c,h],[o1,h]],{cls:'fa'}),fT([a/2,-.5],la),fT([o1+c/2,h+.45],lc)];
+  it.push(fL([o1+c*.5,h],[o1+c*.5,0],{cls:'hl',dash:1}),fRA([o1+c*.5,0],[1,0],[0,1],s));if(lh)it.push(fT([o1+c*.5+.15,h*.45],lh,{a:'s',c:'hlt'}));return it}
+function figKreis(r,lab,useD){const it=[fP(arcE(0,0,r,r,0,2*PI,72),{cls:'fa'}),fP(arcE(0,0,.06*r,.06*r,0,2*PI,12),{cls:'dot'})];
+  const oy=Math.max(.42,r*.2);if(useD){it.push(fL([-r,0],[r,0],{cls:'thin'}),fT([0,oy],lab))}else{it.push(fL([0,0],[r,0],{cls:'thin'}),fT([r/2,oy],lab))}return it}
+
+/* ---------- Körper (Schrägbild, Kavalierperspektive) ---------- */
+const K3=0.35,VIEW=[-K3,1,-K3];
+const PR=([x,y,z])=>[x+K3*y,z+K3*y];
+const dot3=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+function solidModel(V,faces,o={}){
+  const n=V.length,c=V.reduce((s,p)=>[s[0]+p[0]/n,s[1]+p[1]/n,s[2]+p[2]/n],[0,0,0]);
+  faces.forEach(f=>{const vs=f.v.map(i=>V[i]);let nn=[0,0,0];for(let i=0;i<vs.length;i++){const a=vs[i],b=vs[(i+1)%vs.length];nn[0]+=(a[1]-b[1])*(a[2]+b[2]);nn[1]+=(a[2]-b[2])*(a[0]+b[0]);nn[2]+=(a[0]-b[0])*(a[1]+b[1])}
+    const fc=vs.reduce((s,p)=>[s[0]+p[0]/vs.length,s[1]+p[1]/vs.length,s[2]+p[2]/vs.length],[0,0,0]);if(dot3(nn,[fc[0]-c[0],fc[1]-c[1],fc[2]-c[2]])<0)nn=nn.map(v=>-v);f.vis=dot3(nn,VIEW)<-1e-9});
+  const E={};faces.forEach(f=>f.v.forEach((a,i)=>{const b=f.v[(i+1)%f.v.length],k=Math.min(a,b)+'-'+Math.max(a,b);if(!E[k])E[k]={a,b,vis:false};if(f.vis)E[k].vis=true}));
+  const P2=V.map(PR),it=[];
+  const cnt={};faces.forEach(f=>{if(!f.vis)return;cnt[f.role]=(cnt[f.role]||0);const id=f.role+(cnt[f.role]++);it.push(fP(f.v.map(i=>P2[i]),{cls:(o.hiG&&f.role==='G'?'fb':'fa')+' ff',reg:o.click?id:undefined}))});
+  Object.values(E).filter(e=>!e.vis).forEach(e=>it.push(fL(P2[e.a],P2[e.b],{dash:1,cls:'fn hid'})));
+  Object.values(E).filter(e=>e.vis).forEach(e=>it.push(fL(P2[e.a],P2[e.b])));
+  const cx=P2.reduce((s,p)=>s+p[0],0)/n,cy=P2.reduce((s,p)=>s+p[1],0)/n;
+  const bb=bbox([{t:'p',pts:P2}]),off=Math.max(.45,Math.max(bb[2]-bb[0],bb[3]-bb[1])*.055);
+  (o.labels||[]).forEach(([i,j,s,flip])=>{const a=P2[i],b=P2[j],m=[(a[0]+b[0])/2,(a[1]+b[1])/2];const ex=b[0]-a[0],ey=b[1]-a[1],el=Math.hypot(ex,ey)||1;let nx=-ey/el,ny=ex/el;
+    if(nx*(m[0]-cx)+ny*(m[1]-cy)<0){nx=-nx;ny=-ny}if(Array.isArray(flip)){const l=Math.hypot(flip[0],flip[1]);nx=flip[0]/l;ny=flip[1]/l}else if(flip){nx=-nx;ny=-ny}it.push(fT([m[0]+nx*off,m[1]+ny*off],s,{a:Math.abs(nx)<.4?'m':nx>0?'s':'e'}))});
+  (o.extra||[]).forEach(f=>it.push(f(PR)));
+  return it}
+function prism(base,H,mode,o={}){const n=base.length,V=[];
+  base.forEach(([u,v])=>V.push(mode==='lie'?[u,0,v]:[u,v,0]));base.forEach(([u,v])=>V.push(mode==='lie'?[u,H,v]:[u,v,H]));
+  const faces=[{v:base.map((_,i)=>i),role:'G'},{v:base.map((_,i)=>n+i),role:'G'}];
+  for(let i=0;i<n;i++){const j=(i+1)%n;faces.push({v:[i,j,n+j,n+i],role:'S'})}
+  return solidModel(V,faces,o)}
+function cylS(r,h,o={}){const E=.35*r,it=[];
+  it.push(fP([...arcE(0,0,r,E,PI,2*PI),...arcE(0,h,r,E,2*PI,PI)],{cls:'fa ff',reg:o.click?'S0':undefined}));
+  it.push(fP(arcE(0,h,r,E,0,2*PI,60),{cls:o.hiG?'fb':'fa',reg:o.click?'G0':undefined}));
+  it.push(fP(arcE(0,0,r,E,0,PI),{close:false,cls:'fn hid',dash:1}));
+  it.push(fP(arcE(0,0,r,E,PI,2*PI),{close:false,cls:'fn'}),fL([-r,0],[-r,h]),fL([r,0],[r,h]));
+  if(o.lr)it.push(fL([0,h],[r,h],{cls:'thin'}),fP(arcE(0,h,.05*r,.05*r,0,2*PI,10),{cls:'dot'}),fT([r*.55,h+E+Math.max(.35,r*.15)],o.lr));
+  if(o.ld)it.push(fL([-r,h],[r,h],{cls:'thin'}),fT([0,h+E+Math.max(.35,r*.15)],o.ld));
+  if(o.lh)it.push(fT([r+.3,h/2],o.lh,{a:'s'}));
+  return it}
+function cylL(r,L,o={}){const D=K3*L,it=[],t1=-PI/4,t2=3*PI/4;
+  it.push(fP([...arcE(0,0,r,r,t1,t2),...arcE(D,D,r,r,t2,t1)],{cls:'fa ff',reg:o.click?'S0':undefined}));
+  it.push(fP(arcE(D,D,r,r,t1,t2),{close:false,cls:'fn'}));
+  [t1,t2].forEach(t=>it.push(fL([r*Math.cos(t),r*Math.sin(t)],[D+r*Math.cos(t),D+r*Math.sin(t)])));
+  it.push(fP(arcE(0,0,r,r,0,2*PI,60),{cls:o.hiG?'fb':'fa',reg:o.click?'G0':undefined}));
+  it.push(fP(arcE(D,D,r,r,t2,t1+2*PI),{close:false,cls:'fn hid',dash:1}));
+  if(o.lr)it.push(fL([0,0],[-r,0],{cls:'thin'}),fT([-r/2,.38],o.lr));
+  if(o.lh)it.push(fT([r*Math.cos(t1)+D/2+.3,r*Math.sin(t1)+D/2-.2],o.lh,{a:'s'}));
+  return it}
+function pyramid(n,R0,h){const V=[];for(let i=0;i<n;i++){const t=2*PI*i/n+PI/n;V.push([R0*Math.cos(t),R0*Math.sin(t),0])}V.push([0,0,h]);
+  const faces=[{v:V.slice(0,n).map((_,i)=>i),role:'B'}];for(let i=0;i<n;i++)faces.push({v:[i,(i+1)%n,n],role:'T'});return solidModel(V,faces)}
+function frustum(a,b,h){const V=[[0,0,0],[a,0,0],[a,a,0],[0,a,0]],d=(a-b)/2;[[d,d],[d+b,d],[d+b,d+b],[d,d+b]].forEach(([x,y])=>V.push([x,y,h]));
+  const faces=[{v:[0,1,2,3],role:'B'},{v:[4,5,6,7],role:'D'}];for(let i=0;i<4;i++){const j=(i+1)%4;faces.push({v:[i,j,4+j,4+i],role:'T'})}return solidModel(V,faces)}
+function kegel(r,h){const E=.35*r,ts=Math.asin(Math.min(.95,E/h));return[fP([[0,h],...arcE(0,0,r,E,PI-ts,2*PI+ts)],{cls:'fa'}),fP(arcE(0,0,r,E,ts,PI-ts),{close:false,cls:'fn hid',dash:1})]}
+function kugel(r){return[fP(arcE(0,0,r,r,0,2*PI,72),{cls:'fa'}),fP(arcE(0,0,r,.3*r,0,PI),{close:false,cls:'thin',dash:1}),fP(arcE(0,0,r,.3*r,PI,2*PI),{close:false,cls:'thin'})]}
+const ngon=(n,R0,rot=0)=>Array.from({length:n},(_,i)=>{const t=2*PI*i/n+rot;return[R0*Math.cos(t),R0*Math.sin(t)]});
+const shiftP=(pts,dx,dy)=>pts.map(([x,y])=>[x+dx,y+dy]);
+/* Körper-Katalog */
+const KOERPER={
+ quader:{k:'p',name:'Quader',n:4,mk:o=>{const a=R(3,5),b=R(2,4),h=R(2,4);return prism([[0,0],[a,0],[a,b],[0,b]],h,'stand',o)}},
+ wuerfel:{k:'p',name:'Würfel',n:4,mk:o=>{const a=3;return prism([[0,0],[a,0],[a,a],[0,a]],a,'stand',o)}},
+ tri_s:{k:'p',name:'Dreiecksprisma',n:3,mk:o=>prism(pick([[[0,0],[4,0],[1,3]],[[0,0],[4,0],[3,3]],[[0,0],[3.5,0],[1.75,3]]]),R(3,5),'stand',o)},
+ tri_l:{k:'p',name:'Dreiecksprisma',n:3,mk:o=>prism(pick([[[0,0],[4,0],[2,3]],[[0,0],[4,0],[0,3]],[[0,0],[4,0],[1,2.5]]]),R(5,7),'lie',o)},
+ penta_s:{k:'p',name:'Fünfeckprisma',n:5,mk:o=>prism(shiftP(ngon(5,2.2,PI/10),2.2,2.2),R(3,5),'stand',o)},
+ hexa_s:{k:'p',name:'Sechseckprisma',n:6,mk:o=>prism(shiftP(ngon(6,2.2,0),2.2,2.2),R(3,5),'stand',o)},
+ hexa_l:{k:'p',name:'Sechseckprisma',n:6,mk:o=>prism(shiftP(ngon(6,1.8,PI/6),1.8,1.8),R(5,7),'lie',o)},
+ trap_l:{k:'p',name:'Viereckprisma (Trapez als Grundfläche)',n:4,mk:o=>prism([[0,0],[5,0],[4,2.5],[1,2.5]],R(5,7),'lie',o)},
+ zyl_s:{k:'z',name:'Zylinder',mk:o=>cylS(R(18,25)/10,R(3,5),o)},
+ zyl_l:{k:'z',name:'Zylinder',mk:o=>cylL(R(15,20)/10,R(6,9),o)},
+ pyr:{k:'w',name:'Pyramide',mk:()=>pyramid(4,2.3,R(4,5))},
+ pyr3:{k:'w',name:'Dreieckspyramide',mk:()=>pyramid(3,2.4,4)},
+ stumpf:{k:'w',name:'Pyramidenstumpf',mk:()=>frustum(4,2.2,3)},
+ kegel:{k:'w',name:'Kegel',mk:()=>kegel(2,4.5)},
+ kugel:{k:'w',name:'Kugel',mk:()=>kugel(2.2)}
+};
+const KP=Object.keys(KOERPER).filter(k=>KOERPER[k].k==='p'),KZ=['zyl_s','zyl_l'],KW=['pyr','pyr3','stumpf','kegel','kugel'];
+/* beschriftete Körper für Berechnungen */
+function figQuader(a,b,h){return prism([[0,0],[a,0],[a,b],[0,b]],h,'stand',{labels:[[0,1,'a = '+F(a)+' cm'],[1,2,'b = '+F(b)+' cm'],[0,4,'h = '+F(h)+' cm']]})}
+function figTriL(p,q,s,L,hiG){return prism([[0,0],[p,0],[0,q]],L,'lie',{hiG,labels:[[0,1,'a = '+F(p)+' cm'],[0,2,'b = '+F(q)+' cm'],[1,2,'c = '+F(s)+' cm',[q,p]],[1,4,'h = '+F(L)+' cm']]})}
+function figTrapL(a,c,t,L){const o1=(a-c)/2;return prism([[0,0],[a,0],[o1+c,t],[o1,t]],L,'lie',{labels:[[0,1,'a = '+F(a)+' cm'],[3,2,'c = '+F(c)+' cm',[0,1]],[1,5,'h = '+F(L)+' cm']],
+  extra:[P=>fL([a/2,t],[a/2,0],{cls:'hl',dash:1}),P=>fT([a/2+.2,t/2],F(t)+' cm',{a:'s',c:'hlt'})]})}
+const TRI=[[3,4,5],[6,8,10],[5,12,13],[4.5,6,7.5],[9,12,15],[1.5,2,2.5],[8,6,10]];
+
+/* ---------- Gitter (Schrägbild zeichnen) ---------- */
+function cubSeg(x0,y0,W,H,d,o={}){const dd=o.dd??d,F1=[x0,y0],F2=[x0+W,y0],F3=[x0+W,y0+H],F4=[x0,y0+H],B1=[x0+dd,y0+dd],B2=[x0+W+dd,y0+dd],B3=o.b3||[x0+W+dd,y0+H+dd],B4=[x0+dd,y0+H+dd],hd=!o.solidHidden;
+  return[[F1,F2],[F2,F3],[F3,F4],[F4,F1],[F4,B4],[F3,B3],[B4,B3],[F2,B2],[B2,B3],[F1,B1,hd],[B1,B2,hd],[B1,B4,hd]]}
+function gridSvg(cols,rows,segs,o={}){const u=o.u||22,p=14,X=x=>p+x*u,Y=y=>p+(rows-y)*u,W=X(cols)+p,H=Y(0)+p;
+  let s='<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" role="img" aria-label="'+kesc(o.label||'Häuschenpapier')+'"'+(o.click?' class="ksi" data-ks=\''+JSON.stringify({u,p,xmin:0,xmax:cols,ymin:0,ymax:rows})+'\'':'')+'>';
+  for(let x=0;x<=cols;x++)s+='<line class="grid" x1="'+X(x)+'" y1="'+Y(0)+'" x2="'+X(x)+'" y2="'+Y(rows)+'"/>';
+  for(let y=0;y<=rows;y++)s+='<line class="grid" x1="'+X(0)+'" y1="'+Y(y)+'" x2="'+X(cols)+'" y2="'+Y(y)+'"/>';
+  if(o.face)s+='<polygon class="tri" points="'+o.face.map(([a,b])=>X(a)+','+Y(b)).join(' ')+'"/>';
+  segs.forEach(([a,b,dash])=>{s+='<line class="sgl'+(dash?' dsh':'')+'" x1="'+X(a[0])+'" y1="'+Y(a[1])+'" x2="'+X(b[0])+'" y2="'+Y(b[1])+'"/>'});
+  (o.texts||[]).forEach(([x,y,t,a])=>{s+='<text x="'+X(x)+'" y="'+Y(y)+'" text-anchor="'+(a||'middle')+'" style="font-weight:700">'+kesc(t)+'</text>'});
+  if(o.start)s+='<circle class="stp" cx="'+X(o.start[0])+'" cy="'+Y(o.start[1])+'" r="6"/>';
+  if(o.click)s+='<g class="sol"></g><g class="usr"></g><rect class="hit" x="0" y="0" width="'+W+'" height="'+H+'"/>';
+  return s+'</svg>'}
+
+/* ---------- Schrägbild-Werkzeug: Kanten zeichnen ---------- */
+// Prisma auf Häuschenpapier: Vorderfläche in wahrer Grösse (1 cm = 2 Häuschen), Tiefe 1 cm = 1 Häuschen schräg
+function gridPrism(front,b,ox,oy){const n=front.length,V=[];front.forEach(([x,z])=>V.push([x,0,z]));front.forEach(([x,z])=>V.push([x,b,z]));
+  const faces=[{v:front.map((_,i)=>i)},{v:front.map((_,i)=>n+i)}];for(let i=0;i<n;i++){const j=(i+1)%n;faces.push({v:[i,j,n+j,n+i]})}
+  const c=V.reduce((s,p)=>[s[0]+p[0]/V.length,s[1]+p[1]/V.length,s[2]+p[2]/V.length],[0,0,0]),VW=[-1,2,-1];
+  faces.forEach(f=>{const vs=f.v.map(i=>V[i]);let nn=[0,0,0];for(let i=0;i<vs.length;i++){const a=vs[i],q=vs[(i+1)%vs.length];nn[0]+=(a[1]-q[1])*(a[2]+q[2]);nn[1]+=(a[2]-q[2])*(a[0]+q[0]);nn[2]+=(a[0]-q[0])*(a[1]+q[1])}
+    const fc=vs.reduce((s,p)=>[s[0]+p[0]/vs.length,s[1]+p[1]/vs.length,s[2]+p[2]/vs.length],[0,0,0]);if(dot3(nn,[fc[0]-c[0],fc[1]-c[1],fc[2]-c[2]])<0)nn=nn.map(v=>-v);f.vis=dot3(nn,VW)<-1e-9});
+  const E={};faces.forEach(f=>f.v.forEach((a,i)=>{const q=f.v[(i+1)%f.v.length],k=Math.min(a,q)+'-'+Math.max(a,q);if(!E[k])E[k]={a,b:q,vis:false};if(f.vis)E[k].vis=true}));
+  const P=([x,y,z])=>[ox+2*x+y,oy+2*z+y];return Object.values(E).map(e=>[P(V[e.a]),P(V[e.b]),!e.vis])}
+const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b)[a,b]=[b,a%b];return a};
+function pieces(segs){const M=new Map();segs.forEach(([p,q,d])=>{const dx=q[0]-p[0],dy=q[1]-p[1],g=gcd(dx,dy);if(!g)return;const sx=dx/g,sy=dy/g;
+  for(let i=0;i<g;i++){const a=[p[0]+sx*i,p[1]+sy*i],b=[a[0]+sx,a[1]+sy];const k=(a[0]<b[0]||a[0]===b[0]&&a[1]<b[1])?a+'|'+b:b+'|'+a;M.set(k,!!d)}});return M}
+function sketchTask(level,big){const u=big?26:20;let front,b,name,dims,giveFront=false,kind;
+  if(level===1){const a=R(2,5),c=R(1,4);b=R(1,4);front=[[0,0],[a,0],[a,c],[0,c]];giveFront=true;kind='Quader';dims=a+' cm breit, '+c+' cm hoch und '+b+' cm tief'}
+  else if(level===2){if(RNG()<.25){const a=R(2,4);b=a;front=[[0,0],[a,0],[a,a],[0,a]];kind='Würfel';dims='Kantenlänge '+a+' cm'}else{const a=R(2,5),c=R(1,4);b=R(1,4);front=[[0,0],[a,0],[a,c],[0,c]];kind='Quader';dims=a+' cm breit, '+c+' cm hoch und '+b+' cm tief'}}
+  else{const ty=pick(['tri','tri2','trap']);b=R(2,4);
+    if(ty==='tri'){const a=R(2,4),c=R(2,4);front=[[0,0],[a,0],[0,c]];kind='liegendes Dreiecksprisma';dims='Vorderfläche: rechtwinkliges Dreieck mit '+a+' cm (unten) und '+c+' cm (links), '+b+' cm tief'}
+    else if(ty==='tri2'){const [a,c]=pick([[4,3],[6,2],[6,4],[4,1]]);front=[[0,0],[a,0],[a/2,c]];kind='liegendes Dreiecksprisma (Dach)';dims='Vorderfläche: gleichschenkliges Dreieck, '+a+' cm breit und '+c+' cm hoch, '+b+' cm tief'}
+    else{const a=R(4,5),c=2,o=1;front=[[0,0],[a,0],[a-o,c],[o,c]];kind='liegendes Trapezprisma';dims='Vorderfläche: Trapez unten '+a+' cm, oben '+(a-2*o)+' cm, '+c+' cm hoch (oben je 1 cm eingerückt), '+b+' cm tief'}}
+  const W=2*Math.max(...front.map(p=>p[0])),H=2*Math.max(...front.map(p=>p[1])),ox=2,oy=2,cols=W+b+4,rows=H+b+4;
+  const target=gridPrism(front,b,ox,oy);const fr=front.map(([x,z])=>[ox+2*x,oy+2*z]);const given=giveFront?fr.map((p,i)=>[p,fr[(i+1)%fr.length],0]):[];
+  const nh=target.filter(t=>t[2]).length;
+  return{t:'sketch',g:6,b:level===1?'Anwenden':level===2?'Anwenden':'Analysieren',target,given,start:[ox,oy],cols,rows,u,lv:level,
+   q:'Zeichne das Schrägbild: '+kind+', '+dims+'. 1 Häuschen = 5 mm.'+(giveFront?' Die Vorderfläche ist schon gezeichnet.':' Beginne beim roten Startpunkt (vorne unten links).'),
+   e:'Vorderfläche in wahrer Grösse (1 cm = 2 Häuschen). Kanten nach hinten: '+b+' cm = '+b+' Häuschen schräg nach hinten oben. Das Schrägbild hat '+target.length+' Kanten, davon '+nh+' verdeckt (gestrichelt).',
+   h:'Zeichne zuerst die Vorderfläche, dann alle Kanten nach hinten ('+b+' Häuschen schräg), dann die Rückfläche. Was du von vorne nicht sehen kannst, ist gestrichelt.'}}
+function sketchHtml(x){return '<div class="sktools"><span class="hint" style="margin:0">Linie:</span><button class="btn sec skm on" data-m="s">━ durchgezogen</button><button class="btn sec skm" data-m="d">╍ gestrichelt</button><button class="btn sec" data-undo>↶ Rückgängig</button><button class="btn sec" data-clear>Alles löschen</button></div>'+
+  '<div class="hint">Klicke zwei Gitterpunkte nacheinander an: Dazwischen entsteht eine Kante. Zeichnest du dieselbe Kante nochmals, wird sie gelöscht.</div>'}
+function sketchSvg(x){return gridSvg(x.cols,x.rows,x.given,{click:1,u:x.u,label:'Häuschenpapier zum Zeichnen',start:x.given.length?null:x.start})}
+
+/* ---------- Würfelnetze ---------- */
+function fold(cells){const key=c=>c[0]+','+c[1],map=new Map(cells.map((c,i)=>[key(c),i])),st=new Array(cells.length),neg=v=>v.map(x=>-x);st[0]={n:[0,0,-1],r:[1,0,0],u:[0,1,0]};const q=[0];
+  while(q.length){const i=q.shift(),[x,y]=cells[i],s=st[i];[[1,0],[-1,0],[0,1],[0,-1]].forEach(([dx,dy])=>{const j=map.get(key([x+dx,y+dy]));if(j===undefined||st[j])return;let t;
+    if(dx===1)t={n:s.r,r:neg(s.n),u:s.u};else if(dx===-1)t={n:neg(s.r),r:s.n,u:s.u};else if(dy===1)t={n:s.u,r:s.r,u:neg(s.n)};else t={n:neg(s.u),r:s.r,u:s.n};st[j]=t;q.push(j)})}
+  const ns=st.map(s=>s?s.n.join(','):'x');return{ok:new Set(ns).size===6&&!ns.includes('x'),ns}}
+function canon(cells){const T=[([x,y])=>[x,y],([x,y])=>[-x,y],([x,y])=>[x,-y],([x,y])=>[-x,-y],([x,y])=>[y,x],([x,y])=>[-y,x],([x,y])=>[y,-x],([x,y])=>[-y,-x]];
+  return T.map(t=>{const c=cells.map(t),mx=Math.min(...c.map(p=>p[0])),my=Math.min(...c.map(p=>p[1]));return c.map(([x,y])=>(x-mx)+','+(y-my)).sort().join(';')}).sort()[0]}
+function randHex(maxW=4,maxH=4){for(let g=0;g<500;g++){const c=[[0,0]],has=new Set(['0,0']);while(c.length<6){const [x,y]=pick(c),[dx,dy]=pick([[1,0],[-1,0],[0,1],[0,-1]]),k=(x+dx)+','+(y+dy);if(!has.has(k)){has.add(k);c.push([x+dx,y+dy])}}
+  const mx=Math.min(...c.map(p=>p[0])),my=Math.min(...c.map(p=>p[1])),cc=c.map(([x,y])=>[x-mx,y-my]),W=Math.max(...cc.map(p=>p[0]))+1,H=Math.max(...cc.map(p=>p[1]))+1;if(W<=maxW&&H<=maxH)return cc}return null}
+function netItems(cells,dx,o={}){const it=[];cells.forEach(([x,y],i)=>{it.push(fP([[dx+x,y],[dx+x+1,y],[dx+x+1,y+1],[dx+x,y+1]],{cls:o.mark===i?'fb':'fa',reg:o.click?'c'+i:undefined}));if(o.mark===i)it.push(fT([dx+x+.5,y+.5],'★',{b:1}))});return it}
+
+/* ---------- Aufgabenbausteine ---------- */
+function mc(o,a,x){return Object.assign({t:'mc',o,a},x)}
+function mcFrom(correct,cands,x){const o=[correct];for(const c of cands){if(o.length>=4)break;if(!o.includes(c))o.push(c)}const sh=shuffle(o);return mc(sh,sh.indexOf(correct),x)}
+const fig=(items,label,o={})=>svgFig(items,Object.assign({label},o));
+const PIH='Runde auf 2 Stellen nach dem Komma. Mit der π-Taste oder mit 3,14 – beides gilt.';
+
+/* Einheiten (in ml) */
+const SC={'mm³':.001,'cm³':1,'dm³':1000,'m³':1e6,'ml':1,'cl':10,'dl':100,'l':1000,'hl':1e5};
+const NICE=[1,2,3,4,5,6,8,12,15,25,40,75,120,250,500,750,1200,2500,0.5,0.25,0.75,1.5,2.5,3.5,0.2,0.4,0.05,0.8,4.5,0.6];
+const P1=[['cm³','dm³'],['dm³','cm³'],['dm³','m³'],['m³','dm³'],['l','dl'],['dl','l'],['ml','l'],['l','ml'],['cl','l'],['l','cl'],['l','dm³'],['dm³','l'],['ml','cm³'],['cm³','ml']];
+const P2=[['cm³','l'],['l','cm³'],['m³','l'],['l','m³'],['dl','cm³'],['cm³','dl'],['mm³','cm³'],['cm³','mm³'],['hl','l'],['l','hl'],['ml','dm³'],['dm³','ml'],['hl','m³'],['m³','hl']];
+const clean=v=>+v.toPrecision(10);
+const decs=v=>{const s=String(clean(v));return s.includes('.')?s.split('.')[1].length:0};
+function conv(pairs){for(let g=0;g<200;g++){const [f,t]=pick(pairs),v=pick(NICE),a=clean(v*SC[f]/SC[t]);if(decs(a)<=4&&a<=1e7&&a>=.0001&&a!==v)return{v,f,t,a}}return{v:1,f:'l',t:'dl',a:10}}
+const fac=(f,t)=>{const k=SC[f]/SC[t];return k>=1?'· '+F(k,0).replace(/'/g,"'"):': '+F(1/k,0)};
+function convE(c){if(SC[c.f]===SC[c.t])return F4(c.v)+' '+c.f+' = '+F4(c.a)+' '+c.t+' (1 '+c.f+' = 1 '+c.t+')';
+  const big=SC[c.f]>SC[c.t];return F4(c.v)+' '+c.f+' = '+F4(c.v)+' '+fac(c.f,c.t)+' '+c.t+' = '+F4(c.a)+' '+c.t+' ('+(big?'grössere → kleinere Einheit: mal':'kleinere → grössere Einheit: geteilt')+')'}
+
+/* ---------- Generatoren je Abschnitt ---------- */
+const G={
+/* ===== Teil 1: Flächen (LZ 1) ===== */
+s1_rect:()=>{const a=half(3,12),b=half(2,8);if(a===b)return G.s1_rect();return{t:'num',g:1,b:'Anwenden',u:'cm²',q:'Berechne den Flächeninhalt des Rechtecks.',svg:fig(figRect(a,b,'a = '+F(a)+' cm','b = '+F(b)+' cm'),'Rechteck'),a:a*b,
+  e:'A = a · b = '+F(a)+' cm · '+F(b)+' cm = <b>'+F(a*b)+' cm²</b>',h:'Rechteck: A = a · b.'}},
+s1_tri:()=>{const g=R(4,12),h=R(2,8),o=R(1,g-1),s=r1(Math.hypot(g-o,h));return{t:'num',g:1,b:'Anwenden',u:'cm²',q:'Berechne den Flächeninhalt des Dreiecks.',svg:fig(figTri(g,h,o,'g = '+F(g)+' cm','h = '+F(h)+' cm','s = '+F(s)+' cm'),'Dreieck mit Höhe'),a:g*h/2,
+  e:'A = g · h : 2 = '+F(g)+' cm · '+F(h)+' cm : 2 = <b>'+F(g*h/2)+' cm²</b>. Die schräge Seite s brauchst du nicht.',h:'Dreieck: A = g · h : 2. Die Höhe steht senkrecht auf g (rot gestrichelt).'}},
+s1_par:()=>{const g=R(4,10),h=R(2,6),o=R(1,3),s=r1(Math.hypot(o,h));return{t:'num',g:1,b:'Anwenden',u:'cm²',q:'Berechne den Flächeninhalt des Parallelogramms.',svg:fig(figPar(g,h,o,'g = '+F(g)+' cm','h = '+F(h)+' cm','s = '+F(s)+' cm'),'Parallelogramm'),a:g*h,
+  e:'A = g · h = '+F(g)+' cm · '+F(h)+' cm = <b>'+F(g*h)+' cm²</b>. Nicht mit der schrägen Seite s rechnen!',h:'Parallelogramm: A = g · h – mit der Höhe, nicht mit der schrägen Seite.'}},
+s1_trap:()=>{const a=R(6,12),o1=R(1,3),c=R(2,a-o1-1),h=R(2,6);return{t:'num',g:1,b:'Anwenden',u:'cm²',q:'Berechne den Flächeninhalt des Trapezes.',svg:fig(figTrap(a,c,h,o1,'a = '+F(a)+' cm','c = '+F(c)+' cm','h = '+F(h)+' cm'),'Trapez'),a:(a+c)/2*h,
+  e:'A = (a + c) : 2 · h = ('+F(a)+' + '+F(c)+') : 2 · '+F(h)+' = '+F((a+c)/2)+' · '+F(h)+' = <b>'+F((a+c)/2*h)+' cm²</b>',h:'Trapez: A = (a + c) : 2 · h. Zuerst die beiden parallelen Seiten addieren.'}},
+s1_kA:()=>{const r=R(2,9),d=RNG()<.5;return{t:'num',g:1,b:'Anwenden',lv:d?2:1,u:'cm²',pi:1,q:'Berechne den Flächeninhalt des Kreises.',svg:fig(figKreis(r,d?'d = '+F(2*r)+' cm':'r = '+F(r)+' cm',d),'Kreis'),a:PI*r*r,
+  e:(d?'r = d : 2 = '+F(r)+' cm. ':'')+'A = π · r² = π · '+F(r)+' cm · '+F(r)+' cm ≈ <b>'+F(PI*r*r)+' cm²</b>',h:'Kreis: A = π · r². '+(d?'Achtung: Gegeben ist der Durchmesser d. ':'')+PIH}},
+s1_kU:()=>{const r=R(2,12),d=RNG()<.5;return{t:'num',g:1,b:'Anwenden',u:'cm',pi:1,q:'Berechne den Umfang des Kreises.',svg:fig(figKreis(r,d?'d = '+F(2*r)+' cm':'r = '+F(r)+' cm',d),'Kreis'),a:2*PI*r,
+  e:'U = 2 · π · r = π · d = π · '+F(2*r)+' cm ≈ <b>'+F(2*PI*r)+' cm</b>',h:'Kreisumfang: U = 2 · π · r = π · d. '+PIH}},
+s1_tri2:()=>{if(RNG()<.5){const b=R(5,10),hb=R(3,7),t=R(1,b-1);const ang=-Math.atan2(hb,t),c=Math.cos(ang),sn=Math.sin(ang);let rot=([x,y])=>[x*c-y*sn,x*sn+y*c];
+    if(rot([b,0])[1]<0){const r0=rot;rot=p=>{const q=r0(p);return[q[0],-q[1]]}}
+    const A=rot([0,0]),C=rot([b,0]),B=rot([t,hb]),Fp=rot([t,0]),cl=r1(Math.hypot(t,hb));const u1=[(C[0]-A[0])/b,(C[1]-A[1])/b],u2=[(B[0]-Fp[0])/hb,(B[1]-Fp[1])/hb];
+    const out=(P,Q,Rr,txt,o2={})=>{const m=[(P[0]+Q[0])/2,(P[1]+Q[1])/2],dx=Q[0]-P[0],dy=Q[1]-P[1],L=Math.hypot(dx,dy);let nx=-dy/L,ny=dx/L;if(nx*(Rr[0]-m[0])+ny*(Rr[1]-m[1])>0){nx=-nx;ny=-ny}const off=Math.max(b,hb)*.07;return fT([m[0]+nx*off,m[1]+ny*off],txt,Object.assign({a:Math.abs(nx)<.4?'m':nx>0?'s':'e'},o2))};
+    const it=[fP([A,B,C],{cls:'fa'}),fL(B,Fp,{cls:'hl',dash:1}),fRA(Fp,u1,u2,Math.max(b,hb)*.05),out(A,C,B,'b = '+b+' cm'),out(A,B,C,'c = '+F(cl)+' cm')];
+    const mh=[Fp[0]+(B[0]-Fp[0])*.38,Fp[1]+(B[1]-Fp[1])*.38],side=(C[0]-Fp[0])*u1[0]+(C[1]-Fp[1])*u1[1]>0?1:-1,oh=Math.max(b,hb)*.04;
+    it.push(fT([mh[0]+u1[0]*oh*side,mh[1]+u1[1]*oh*side],'h = '+hb+' cm',{a:u1[0]*side>0?'s':'e',c:'hlt'}));
+    return{t:'num',g:1,b:'Analysieren',lv:3,u:'cm²',q:'Berechne den Flächeninhalt des Dreiecks. Achtung: Die Höhe steht hier <b>nicht</b> auf der unteren Seite!',svg:fig(it,'Dreieck mit Höhe auf der Seite b'),a:b*hb/2,
+     e:'Die Höhe h steht senkrecht auf der Seite b. Also gehören b und h zusammen: A = b · h : 2 = '+b+' · '+hb+' : 2 = <b>'+F(b*hb/2)+' cm²</b>. Die Seite c brauchst du nicht.',h:'Welche Seite steht im rechten Winkel zur Höhe? Diese Seite ist die Grundseite.'}}
+  const g=R(3,7),h=R(2,6),o=R(1,3),s=r1(Math.hypot(g+o,h));const it=[fP([[0,0],[g,0],[g+o,h]],{cls:'fa'}),fL([g,0],[g+o,0],{cls:'thin',dash:1}),fL([g+o,h],[g+o,0],{cls:'hl',dash:1}),fRA([g+o,0],[-1,0],[0,1],Math.max(g,h)*.05),
+    fT([g/2,-.5],'g = '+g+' cm'),fT([g+o+.2,h/2],'h = '+h+' cm',{a:'s',c:'hlt'}),fT([(g+o)/2-.3,h/2+.3],'s = '+F(s)+' cm',{a:'e'})];
+  return{t:'num',g:1,b:'Analysieren',lv:2,u:'cm²',q:'Berechne den Flächeninhalt des stumpfwinkligen Dreiecks. Die Höhe liegt hier <b>ausserhalb</b> des Dreiecks.',svg:fig(it,'Stumpfwinkliges Dreieck'),a:g*h/2,
+   e:'Auch hier gilt A = g · h : 2 = '+g+' · '+h+' : 2 = <b>'+F(g*h/2)+' cm²</b>. Die Grundseite wird nur verlängert (gestrichelt), damit man die Höhe zeichnen kann.',h:'Die Formel bleibt gleich: A = g · h : 2. Die gestrichelte Verlängerung zählt nicht zur Grundseite.'}},
+s1_kd:()=>{const r=R(2,10),ask=pick(['A','U']);return{t:'num',g:1,b:'Anwenden',lv:ask==='A'?2:1,u:ask==='A'?'cm²':'cm',pi:1,q:'Gegeben ist der <b>Durchmesser</b> d = '+2*r+' cm. Berechne '+(ask==='A'?'den Flächeninhalt':'den Umfang')+' des Kreises.',svg:fig(figKreis(r,'d = '+2*r+' cm',1),'Kreis mit Durchmesser'),a:ask==='A'?PI*r*r:2*PI*r,
+  e:ask==='A'?'r = d : 2 = '+2*r+' : 2 = '+r+' cm. A = π · r² = π · '+r+' · '+r+' ≈ <b>'+F(PI*r*r)+' cm²</b>':'U = π · d = π · '+2*r+' ≈ <b>'+F(2*PI*r)+' cm</b> (oder 2 · π · r mit r = '+r+' cm)',h:ask==='A'?'Für die Fläche brauchst du den Radius: r = d : 2. '+PIH:'U = π · d. '+PIH}},
+s1_formula:()=>{const L=[['Rechteck','A = a · b',['A = 2 · a + 2 · b','A = a + b','A = a · b : 2'],()=>figRect(4,2.5,'a','b')],
+   ['Dreieck','A = g · h : 2',['A = g · h','A = g + h : 2','A = g · s'],()=>figTri(5,3,1.5,'g','h','s')],
+   ['Parallelogramm','A = g · h',['A = g · s','A = g · h : 2','A = 2 · g + 2 · s'],()=>figPar(4.5,2.5,1.5,'g','h','s')],
+   ['Trapez','A = (a + c) : 2 · h',['A = a · c · h','A = (a + c) · h : 4','A = a · h : 2'],()=>figTrap(6,3,2.5,1.2,'a','c','h')],
+   ['Kreis (Fläche)','A = π · r²',['A = 2 · π · r','A = π · d²','A = π · r'],()=>figKreis(2,'r')],
+   ['Kreis (Umfang)','U = 2 · π · r',['U = π · r²','U = π · r','U = 2 · r'],()=>figKreis(2,'r')]];
+  const [n,ok,w,f]=pick(L);return mcFrom(ok,w,{g:1,b:'Wissen',q:'Welche Formel gilt für das <b>'+n+'</b>?',svg:fig(f(),n,{maxS:26}),e:n+': <b>'+ok+'</b>.',h:'Schau im Theorieheft nach.'})},
+s1_err:()=>{const nm=pick(NAMES),ty=pick(['tri','par','kreis','umf']);let q,svg,ok,e;const W=['Das ist richtig.','Die Einheit muss cm sein, nicht cm².','Es wurde mit der falschen Seite gerechnet.','Es wurde «: 2» vergessen.','Es wurde mit dem Durchmesser statt mit dem Radius gerechnet.','Es wurde die Formel für den Umfang verwendet.'];
+  if(ty==='tri'){const g=R(4,10),h=R(2,7),o=R(1,g-1);svg=fig(figTri(g,h,o,'g = '+g+' cm','h = '+h+' cm'),'Dreieck');q=nm+' rechnet: A = '+g+' · '+h+' = '+F(g*h)+' cm². Was stimmt?';ok=W[3];e='Beim Dreieck teilt man durch 2: A = '+g+' · '+h+' : 2 = '+F(g*h/2)+' cm².'}
+  if(ty==='par'){const g=R(4,9),h=R(2,5),o=R(2,3),s=r1(Math.hypot(o,h));svg=fig(figPar(g,h,o,'g = '+g+' cm','h = '+h+' cm','s = '+F(s)+' cm'),'Parallelogramm');q=nm+' rechnet: A = '+g+' · '+F(s)+' = '+F(g*s)+' cm². Was stimmt?';ok=W[2];e='Man rechnet mit der Höhe h, nicht mit der schrägen Seite s: A = '+g+' · '+h+' = '+F(g*h)+' cm².'}
+  if(ty==='kreis'){const r=R(2,8);svg=fig(figKreis(r,'r = '+r+' cm'),'Kreis');q=nm+' rechnet die Kreisfläche: A = π · '+(2*r)+'² ≈ '+F(PI*4*r*r)+' cm². Was stimmt?';ok=W[4];e='A = π · r² = π · '+r+'² ≈ '+F(PI*r*r)+' cm². In die Formel gehört der Radius r = '+r+' cm.'}
+  if(ty==='umf'){const r=R(2,8);svg=fig(figKreis(r,'r = '+r+' cm'),'Kreis');q=nm+' soll die Kreisfläche berechnen und rechnet: 2 · π · '+r+' ≈ '+F(2*PI*r)+' cm². Was stimmt?';ok=W[5];e='2 · π · r ist der Umfang. Die Fläche ist A = π · r² = π · '+r+'² ≈ '+F(PI*r*r)+' cm².'}
+  return mcFrom(ok,shuffle(W.filter(x=>x!==ok)),{g:1,b:'Analysieren',q:'Fehler finden: '+q,svg,e,h:'Rechne selbst nach und vergleiche Schritt für Schritt.'})},
+s1_which:()=>{const g=R(5,9),h=R(3,5),o=R(1,g-1),s=r1(Math.hypot(g-o,h)),t=r1(Math.hypot(o,h));
+  const it=[fP([[0,0],[g,0],[o,h]],{cls:'fa'}),fL([o,h],[o,0],{cls:'hl',dash:1}),fRA([o,0],[1,0],[0,1],.3),fT([g/2,-.5],'g = '+g+' cm'),fT([o+.15,h*.4],F(h)+' cm',{a:'s',c:'hlt'}),fT([(o+g)/2+.25,h/2+.1],F(s)+' cm',{a:'s'}),fT([o/2-.25,h/2+.1],F(t)+' cm',{a:'e'})];
+  return mcFrom('A = '+g+' · '+F(h)+' : 2',['A = '+g+' · '+F(s)+' : 2','A = '+g+' · '+F(h),'A = '+F(s)+' · '+F(t)+' : 2'],{g:1,b:'Verstehen',q:'Welche Rechnung ergibt den Flächeninhalt des Dreiecks?',svg:fig(it,'Dreieck mit drei Längen'),e:'Man braucht die Grundseite g und die Höhe h, die senkrecht auf g steht: A = '+g+' · '+F(h)+' : 2 = '+F(g*h/2)+' cm².',h:'Welche Strecke steht senkrecht auf der Grundseite?'})},
+
+/* ===== Teil 1: Zusammengesetzte Flächen (LZ 2, 3) ===== */
+s2_L:()=>{const W=R(6,12),H=R(5,10),c=R(2,W-2),d=R(2,H-2);const w=W-c,hh=H-d;const pts=[[0,0],[W,0],[W,d],[c,d],[c,H],[0,H]];
+  const it=[fP(pts,{cls:'fa'}),fT([W/2,-.5],F(W)+' cm'),fT([-.25,H/2],F(H)+' cm',{a:'e'}),fT([c/2,H+.45],F(c)+' cm'),fT([W+.25,d/2],F(d)+' cm',{a:'s'})];
+  return{t:'num',g:2,b:'Anwenden',u:'cm²',q:'Berechne den Flächeninhalt der Figur. Zerlege sie zuerst in Rechtecke.',svg:fig(it,'Zusammengesetzte Figur'),a:W*H-w*hh,
+  e:'Zerlegen: '+F(c)+' · '+F(H)+' = '+F(c*H)+' cm² und '+F(w)+' · '+F(d)+' = '+F(w*d)+' cm² → zusammen <b>'+F(c*H+w*d)+' cm²</b>. Oder ergänzen: '+F(W)+' · '+F(H)+' − '+F(w)+' · '+F(hh)+' = '+F(W*H-w*hh)+' cm².',h:'Fehlende Seiten: '+F(W)+' − '+F(c)+' und '+F(H)+' − '+F(d)+'.'}},
+s2_haus:()=>{const a=R(4,10),b=R(3,7),t=R(2,4);const it=[fP([[0,0],[a,0],[a,b],[a/2,b+t],[0,b]],{cls:'fa'}),fL([0,b],[a,b],{cls:'thin',dash:1}),fL([a/2,b],[a/2,b+t],{cls:'hl',dash:1}),fT([a/2,-.5],F(a)+' cm'),fT([a+.25,b/2],F(b)+' cm',{a:'s'}),fT([a/2+.15,b+t/2],F(t)+' cm',{a:'s',c:'hlt'})];
+  return{t:'num',g:2,b:'Anwenden',u:'cm²',q:'Berechne den Flächeninhalt der Hausfigur (Rechteck + Dreieck).',svg:fig(it,'Hausfigur'),a:a*b+a*t/2,
+  e:'Rechteck: '+F(a)+' · '+F(b)+' = '+F(a*b)+' cm². Dreieck: '+F(a)+' · '+F(t)+' : 2 = '+F(a*t/2)+' cm². Zusammen: <b>'+F(a*b+a*t/2)+' cm²</b>',h:'Rechne Rechteck und Dreieck einzeln und addiere.'}},
+s2_teich:()=>{const a=R(8,14),b=R(6,10),r=R(1,Math.min(3,Math.floor(b/2)-1));const it=[fP([[0,0],[a,0],[a,b],[0,b]],{cls:'fa'}),fP(arcE(a/2,b/2,r,r,0,2*PI,60),{cls:'fw'}),fL([a/2,b/2],[a/2+r,b/2],{cls:'thin'}),fT([a/2,b/2+r+.55],'r = '+r+' m'),fT([a/2,-.5],F(a)+' m'),fT([a+.25,b/2],F(b)+' m',{a:'s'})];
+  return{t:'num',g:2,b:'Anwenden',u:'m²',pi:1,q:'Ein Rasen ('+a+' m × '+b+' m) hat in der Mitte einen runden Teich. Wie gross ist die Rasenfläche?',svg:fig(it,'Rasen mit Teich'),a:a*b-PI*r*r,
+  e:'Rechteck − Kreis: '+F(a)+' · '+F(b)+' − π · '+r+'² = '+F(a*b)+' − '+F(PI*r*r)+' ≈ <b>'+F(a*b-PI*r*r)+' m²</b>',h:'Vom Rechteck die Kreisfläche abziehen. '+PIH}},
+s2_platz:()=>{const a=R(6,12),r=R(2,4);const it=[fP([[0,-r],[a,-r],...arcE(a,0,r,r,-PI/2,PI/2,30),[0,r],...arcE(0,0,r,r,PI/2,3*PI/2,30)],{cls:'fa'}),fL([0,-r],[0,r],{cls:'thin',dash:1}),fL([a,-r],[a,r],{cls:'thin',dash:1}),fT([a/2,-r-.5],F(a)+' m'),fT([a/2,.42],'d = '+(2*r)+' m'),fL([0,0],[a,0],{cls:'thin'})];
+  return{t:'num',g:2,b:'Anwenden',u:'m²',pi:1,q:'Ein Spielfeld besteht aus einem Rechteck und zwei Halbkreisen. Berechne seine Fläche.',svg:fig(it,'Spielfeld'),a:a*2*r+PI*r*r,
+  e:'Rechteck: '+a+' · '+(2*r)+' = '+F(2*a*r)+' m². Zwei Halbkreise = ein ganzer Kreis mit r = '+r+' m: π · '+r+'² ≈ '+F(PI*r*r)+' m². Zusammen ≈ <b>'+F(2*a*r+PI*r*r)+' m²</b>',h:'Zwei Halbkreise ergeben zusammen einen Kreis. r = d : 2. '+PIH}},
+s2_way:()=>{const W=R(7,10),H=R(6,9),c=R(2,W-3),d=R(2,H-3),w=W-c,hh=H-d;const pts=[[0,0],[W,0],[W,d],[c,d],[c,H],[0,H]];
+  const it=[fP(pts,{cls:'fa'}),fT([W/2,-.5],W+' cm'),fT([-.25,H/2],H+' cm',{a:'e'}),fT([c/2,H+.45],c+' cm'),fT([W+.25,d/2],d+' cm',{a:'s'})];
+  return mcFrom(c+' · '+H+' + '+w+' · '+d,[W+' · '+H+' + '+c+' · '+d,W+' · '+H+' − '+c+' · '+d,c+' · '+H+' + '+W+' · '+d],{g:2,b:'Verstehen',q:'Welche Rechnung ergibt den Flächeninhalt der Figur (in cm²)?',svg:fig(it,'Zusammengesetzte Figur'),
+  e:'Senkrecht zerlegen: linkes Rechteck '+c+' · '+H+', rechtes Rechteck ('+W+' − '+c+') · '+d+' = '+w+' · '+d+'. Ergebnis: '+F(c*H+w*d)+' cm².',h:'Zeichne eine Trennlinie und bestimme die Seiten der beiden Rechtecke.'})},
+s2_err:()=>{const nm=pick(NAMES),a=R(4,8),b=R(3,6),t=R(2,4);const it=[fP([[0,0],[a,0],[a,b],[a/2,b+t],[0,b]],{cls:'fa'}),fL([0,b],[a,b],{cls:'thin',dash:1}),fL([a/2,b],[a/2,b+t],{cls:'hl',dash:1}),fT([a/2,-.5],a+' cm'),fT([a+.25,b/2],b+' cm',{a:'s'}),fT([a/2+.15,b+t/2],t+' cm',{a:'s',c:'hlt'})];
+  const ty=pick(['tri','sub']);const q=ty==='tri'?nm+' rechnet: '+a+' · '+b+' + '+a+' · '+t+' = '+F(a*b+a*t)+' cm².':nm+' rechnet: '+a+' · '+(b+t)+' − '+a+' · '+t+' : 2 = '+F(a*(b+t)-a*t/2)+' cm².';
+  const ok=ty==='tri'?'Beim Dreieck fehlt «: 2».':'Das ist richtig – ergänzen und abziehen geht auch.';
+  return mcFrom(ok,shuffle(['Beim Dreieck fehlt «: 2».','Das ist richtig – ergänzen und abziehen geht auch.','Man darf Flächen nicht addieren.','Das Dreieck hätte man mit '+b+' cm rechnen müssen.']),{g:2,b:'Analysieren',q:'Fehler finden: '+q+' Was stimmt?',svg:fig(it,'Hausfigur'),e:'Richtig: '+a+' · '+b+' + '+a+' · '+t+' : 2 = '+F(a*b+a*t/2)+' cm².',h:'Rechne Rechteck und Dreieck selbst aus.'})},
+s2_tr1:()=>{const ty=pick(['rect','tri','umf','platten','farbe']);
+  if(ty==='rect'){const a=R(4,12),b=half(2,9);return{t:'num',g:3,b:'Analysieren',u:'cm',q:'Ein Rechteck hat den Flächeninhalt '+F(a*b)+' cm². Eine Seite ist '+a+' cm lang. Wie lang ist die andere Seite?',a:b,e:'A = a · b → b = A : a = '+F(a*b)+' : '+a+' = <b>'+F(b)+' cm</b>',h:'Rückwärts rechnen: A : a.'}}
+  if(ty==='tri'){const g=R(4,12),h=R(2,10);return{t:'num',g:3,b:'Analysieren',u:'cm',q:'Ein Dreieck hat den Flächeninhalt '+F(g*h/2)+' cm² und die Grundseite g = '+g+' cm. Wie gross ist die Höhe h?',a:h,e:'A = g · h : 2 → h = A · 2 : g = '+F(g*h/2)+' · 2 : '+g+' = <b>'+F(h)+' cm</b>',h:'Rückwärts: zuerst · 2, dann : g.'}}
+  if(ty==='umf'){const r=R(2,15);return{t:'num',g:3,b:'Analysieren',u:'cm',pi:1,q:'Ein Kreis hat den Umfang '+F(2*PI*r)+' cm. Wie gross ist sein Radius?',a:r,e:'U = 2 · π · r → r = U : (2 · π) = '+F(2*PI*r)+' : '+F(2*PI)+' ≈ <b>'+F(r)+' cm</b>',h:'Teile den Umfang durch 2 · π.'}}
+  if(ty==='platten'){const s=pick([20,25,50]),L=pick([2,3,4,5])*(s===20?1:1),B=pick([2,2.5,3,1.5]),n=(L*100/s)*(B*100/s);if(!Number.isInteger(n))return G.s2_tr1();return{t:'num',g:3,b:'Anwenden',u:'Platten',q:'Ein Boden ist '+F(L)+' m lang und '+F(B)+' m breit. Er wird mit quadratischen Platten ('+s+' cm × '+s+' cm) belegt. Wie viele Platten braucht es?',a:n,e:F(L)+' m = '+F(L*100)+' cm → '+F(L*100/s)+' Platten; '+F(B)+' m = '+F(B*100)+' cm → '+F(B*100/s)+' Platten. '+F(L*100/s)+' · '+F(B*100/s)+' = <b>'+F(n)+' Platten</b>',h:'Rechne zuerst in cm um. Wie viele Platten passen in eine Reihe?'}}
+  const L=pick([4,4.5,5,6]),H=pick([2.5,2.4,3]),fw=pick([1.2,1,1.5]),fh=pick([1,1.2]),m2=pick([5,8,10]),A=L*H-fw*fh;return{t:'num',g:3,b:'Anwenden',u:'l',q:'Eine Wand ist '+F(L)+' m breit und '+F(H)+' m hoch. Sie hat ein Fenster ('+F(fw)+' m × '+F(fh)+' m). Mit 1 Liter Farbe streicht man '+m2+' m². Wie viele Liter Farbe braucht es?',a:A/m2,e:'Wand − Fenster: '+F(L*H)+' − '+F(fw*fh)+' = '+F(A)+' m². '+F(A)+' : '+m2+' = <b>'+F(A/m2)+' l</b>',h:'Zuerst die Fläche ohne Fenster, dann durch '+m2+' teilen.'}},
+s2_tr2:()=>{const k=pick([2,3]);return mcFrom(k*k+'-mal so gross',[k+'-mal so gross',2*k+'-mal so gross','gleich gross'],{g:3,b:'Bewerten',q:'Der Radius eines Kreises wird '+(k===2?'verdoppelt':'verdreifacht')+'. Was passiert mit dem Flächeninhalt?',svg:fig([fP(arcE(0,0,1,1,0,2*PI),{cls:'fa'}),fP(arcE(k+1.6,0,k,k,0,2*PI),{cls:'fa'}),fT([0,1.4],'r'),fT([k+1.6,k+.4],k+' · r')],'Zwei Kreise',{maxS:22}),
+  e:'A = π · r · r. Wird r '+k+'-mal so gross, kommt der Faktor '+k+' zweimal vor: '+k+' · '+k+' = '+(k*k)+'. Die Fläche wird '+(k*k)+'-mal so gross.',h:'Probiere es mit r = 1 cm und r = '+k+' cm aus.'})},
+
+/* ===== Teil 2: Prisma und Zylinder (LZ 4, 5) ===== */
+s3_class:()=>{const k=pick(RNG()<.5?KP:RNG()<.5?KZ:KW),K=KOERPER[k],ans={p:'Prisma',z:'Zylinder',w:'weder Prisma noch Zylinder'}[K.k];
+  return mc(['Prisma','Zylinder','weder Prisma noch Zylinder'],['Prisma','Zylinder','weder Prisma noch Zylinder'].indexOf(ans),{g:5,b:'Verstehen',q:'Ist dieser Körper ein Prisma, ein Zylinder oder keins von beiden?',svg:fig(K.mk({}),'Körper',{maxS:30}),
+  e:'Das ist '+(k==='kugel'?'eine Kugel':k==='kegel'?'ein Kegel':K.k==='p'?'ein '+K.name:K.k==='z'?'ein Zylinder':'eine '+K.name)+'. '+REASON[K.k==='w'?k:K.k],h:'Hat der Körper zwei deckungsgleiche, parallele Flächen (Grund- und Deckfläche)?'})},
+s3_reason:()=>{const k=pick([...shuffle(KP).slice(0,2),...KZ,...KW]),K=KOERPER[k];const typ=K.k==='w'?k:K.k;
+  const ok=(K.k==='p'?'Prisma: ':K.k==='z'?'Zylinder: ':'Weder noch: ')+REASON[typ];
+  const W=['Prisma: Es hat Ecken und Kanten.','Zylinder: Er ist rund.','Prisma: Es hat eine Spitze.','Weder noch: Die Grundfläche liegt nicht unten.','Zylinder: Er hat eine runde Grundfläche und eine Spitze.','Prisma: '+REASON.p,'Zylinder: '+REASON.z,'Weder noch: '+REASON.pyr];
+  return mcFrom(ok,shuffle(W.filter(w=>w!==ok)),{g:5,b:'Verstehen',q:'Welche Entscheidung mit Begründung stimmt für diesen Körper?',svg:fig(K.mk({}),'Körper',{maxS:30}),e:ok,h:'Prisma: zwei deckungsgleiche, parallele Vielecke. Zylinder: zwei deckungsgleiche, parallele Kreise.'})},
+s3_clickG:()=>{const k=pick([...KP,'zyl_s','zyl_l']),K=KOERPER[k],it=K.mk({click:1});const ok=it.filter(i=>i.reg&&i.reg[0]==='G').map(i=>i.reg);
+  return{t:'click',g:4,b:'Verstehen',lv:k.endsWith('_l')?2:1,q:'Klicke eine <b>Grundfläche</b> (Grund- oder Deckfläche) des Körpers an.',svg:fig(it,'Körper zum Anklicken',{cls:'clk',maxS:36}),ok,
+  e:'Die Grundflächen sind die beiden deckungsgleichen, parallelen Flächen'+(k.endsWith('_l')?'. Hier liegt der Körper: Die Grundfläche ist vorne!':'.'),h:'Suche die Fläche, die es genau zweimal gibt und die der anderen gegenüberliegt. Sie muss nicht unten sein.'}},
+s3_clickS:()=>{const k=pick([...KP,'zyl_s']),K=KOERPER[k],it=K.mk({click:1});const ok=it.filter(i=>i.reg&&i.reg[0]==='S').map(i=>i.reg);if(!ok.length)return G.s3_clickS();
+  return{t:'click',g:4,b:'Verstehen',q:'Klicke eine <b>'+(K.k==='z'?'Stelle des Mantels':'Seitenfläche')+'</b> an.',svg:fig(it,'Körper zum Anklicken',{cls:'clk',maxS:36}),ok,
+  e:K.k==='z'?'Der Mantel ist die gekrümmte Fläche zwischen Grund- und Deckfläche.':'Die Seitenflächen verbinden Grund- und Deckfläche. Beim Prisma sind sie Rechtecke.',h:'Seitenflächen sind alle Flächen ausser Grund- und Deckfläche.'}},
+s3_name:()=>{const k=pick(KP),K=KOERPER[k];const opts=['Dreiecksprisma','Viereckprisma','Fünfeckprisma','Sechseckprisma'],ans=K.n===3?0:K.n===4?1:K.n===5?2:3;
+  return mc(opts,ans,{g:4,b:'Verstehen',q:'Wie heisst dieses Prisma? Achte auf die Form der Grundfläche.',svg:fig(K.mk({hiG:1}),'Prisma mit gefärbter Grundfläche',{maxS:30}),e:'Die Grundfläche (grün) ist ein '+['Dreieck','Viereck','Fünfeck','Sechseck'][ans]+' → '+opts[ans]+(k==='trap_l'?'. Auch ein Trapez ist ein Viereck!':k==='quader'||k==='wuerfel'?'. Quader und Würfel sind besondere Viereckprismen.':'')+'.',h:'Zähle die Ecken der grünen Grundfläche.'})},
+s3_count:()=>{const n=R(3,8),show=n<=6;const it=show?prism(shiftP(ngon(n,2.2,n===4?PI/4:PI/2),2.2,2.2),R(3,4),'stand',{hiG:1}):null;
+  return{t:'multi',g:4,b:n>6?'Analysieren':'Verstehen',lv:n>6?3:1,q:'Ein '+['','','','Dreiecks','Vierecks','Fünfeck','Sechseck','Siebeneck','Achteck'][n]+'prisma'+(show?'':' (ohne Bild – stell es dir vor!)')+': Wie viele Ecken, Kanten und Flächen hat es?'+(show?'':''),svg:show?fig(it,'Prisma',{maxS:30}):'',
+  fields:[{lab:'Ecken:',a:2*n},{lab:'Kanten:',a:3*n},{lab:'Flächen:',a:n+2}],e:'Grundfläche mit '+n+' Ecken: Ecken = 2 · '+n+' = '+(2*n)+', Kanten = 3 · '+n+' = '+(3*n)+' (unten, oben, senkrecht), Flächen = '+n+' + 2 = '+(n+2)+'.',h:'Unten '+n+' Ecken, oben '+n+' Ecken. Kanten: unten, oben und die senkrechten.'}},
+s3_h:()=>{if(RNG()<.5){const [p,q,s]=pick(TRI.filter(t=>t[2]<=10)),L=R(6,14);return{t:'num',g:4,b:'Analysieren',u:'cm',q:'Dieses Dreiecksprisma liegt. Wie gross ist seine <b>Höhe</b>?',svg:fig(figTriL(p,q,s,L,1),'Liegendes Dreiecksprisma',{maxS:26}),a:L,
+    e:'Die Höhe ist der Abstand zwischen den beiden Grundflächen (grün, vorne und hinten): h = <b>'+L+' cm</b>. Die '+q+' cm sind die Höhe des Dreiecks, nicht die Höhe des Prismas!',h:'Die Höhe eines Prismas verbindet Grund- und Deckfläche.'}}
+  const a=R(5,9),c=R(2,a-2),t=R(2,4),L=R(6,12);return{t:'num',g:4,b:'Analysieren',u:'cm',q:'Dieses Prisma liegt. Wie gross ist seine <b>Höhe</b>?',svg:fig(prism([[0,0],[a,0],[(a+c)/2,t],[(a-c)/2,t]],L,'lie',{hiG:1,labels:[[0,1,a+' cm'],[3,2,c+' cm',[0,1]],[1,5,L+' cm']],extra:[()=>fL([a/2,t],[a/2,0],{cls:'hl',dash:1}),()=>fT([a/2+.2,t/2],t+' cm',{a:'s',c:'hlt'})]}),'Liegendes Prisma',{maxS:26}),a:L,
+    e:'Grund- und Deckfläche sind die Trapeze (vorne und hinten). Ihr Abstand ist die Höhe: h = <b>'+L+' cm</b>.',h:'Suche zuerst die Grundflächen (grün). Die Höhe ist ihr Abstand.'}},
+s3_true:()=>{const T=['Bei einem Prisma sind Grund- und Deckfläche deckungsgleich und parallel.','Die Seitenflächen eines Prismas sind Rechtecke.','Die Höhe eines Prismas ist der Abstand zwischen Grund- und Deckfläche.','Ein Quader ist ein Prisma.','Ein Prisma wird nach der Form seiner Grundfläche benannt.','Ein Zylinder hat zwei deckungsgleiche Kreise als Grund- und Deckfläche.'];
+  const Fa={'Die Grundfläche eines Prismas liegt immer unten.':'Liegt ein Prisma, ist die Grundfläche zum Beispiel vorne.','Eine Pyramide ist ein Prisma.':'Eine Pyramide hat nur eine Grundfläche und eine Spitze.','Die Seitenflächen eines Prismas sind Dreiecke.':'Die Seitenflächen eines Prismas sind Rechtecke.','Ein Dreiecksprisma hat 3 Ecken.':'Ein Dreiecksprisma hat 6 Ecken (3 unten, 3 oben).','Ein Kegel ist ein Zylinder.':'Ein Kegel hat eine Spitze und keine Deckfläche.','Die Höhe eines Prismas ist immer die senkrechte Kante.':'Die Höhe verbindet Grund- und Deckfläche. Bei einem liegenden Prisma ist sie waagrecht.'};
+  const FK=Object.keys(Fa);if(RNG()<.5){const ok=pick(T);return mcFrom(ok,shuffle(FK),{g:4,b:'Wissen',q:'Welche Aussage <b>stimmt</b>?',e:'Richtig: «'+ok+'»',h:'Denk an ein liegendes Prisma und an eine Pyramide.'})}
+  const w=pick(FK);return mcFrom(w,shuffle(T),{g:4,b:'Verstehen',q:'Welche Aussage ist <b>falsch</b>?',e:'Falsch ist: «'+w+'» '+Fa[w],h:'Denk an ein liegendes Prisma und an eine Pyramide.'})},
+
+/* ===== Teil 2: Schrägbild und Netz (LZ 6, 7, 8) ===== */
+s4_draw:()=>{const a=R(2,4),c=R(1,3),b=R(1,3),W=2*a,H=2*c,x0=1,y0=1;const cols=W+b+2,rows=H+b+2;
+  const tg=[[x0+W+b,y0+b],[x0+W+b,y0+H+b],[x0+b,y0+H+b]];
+  return{t:'draw',g:6,b:'Anwenden',need:3,target:tg,cub:[x0,y0,W,H,b],q:'Die Vorderfläche eines Quaders ist schon gezeichnet ('+a+' cm breit, '+c+' cm hoch, 1 Häuschen = 5 mm). Der Quader ist <b>'+b+' cm tief</b>. Klicke die <b>drei sichtbaren hinteren Eckpunkte</b> an.',
+   svg:gridSvg(cols,rows,[[[x0,y0],[x0+W,y0]],[[x0+W,y0],[x0+W,y0+H]],[[x0+W,y0+H],[x0,y0+H]],[[x0,y0+H],[x0,y0]]],{click:1,face:[[x0,y0],[x0+W,y0],[x0+W,y0+H],[x0,y0+H]],label:'Häuschenpapier mit Vorderfläche'}),
+   e:b+' cm Tiefe = '+b+' Häuschen schräg (diagonal) nach hinten oben rechts. Die Kante hinten unten links ist verdeckt und wird gestrichelt.',h:'Jede Tiefenkante geht '+b+' Häuschen nach rechts und gleichzeitig '+b+' Häuschen nach oben.'}},
+s4_sk1:()=>sketchTask(1),
+s4_sk2:()=>sketchTask(2),
+s4_sk3:()=>sketchTask(3),
+s4_pick:()=>{const a=pick([2,3]),c=pick([1,2]),b=pick([1,2]),W=2*a,H=2*c,errs=shuffle(['len','hid','par']).slice(0,2),kinds=shuffle(['ok',...errs]);
+  const u=16,gap=2,colW=W+2*b+3,rows=H+2*b+3;let s='<svg viewBox="0 0 '+(3*colW*u+2*gap*u)+' '+(rows*u+22)+'" width="'+(3*colW*u+2*gap*u)+'" role="img" aria-label="Drei Schrägbilder A, B, C">';
+  kinds.forEach((k,i)=>{const ox=i*(colW+gap)*u,X=x=>ox+x*u,Y=y=>18+(rows-y)*u;for(let x=0;x<=colW;x++)s+='<line class="grid" x1="'+X(x)+'" y1="'+Y(0)+'" x2="'+X(x)+'" y2="'+Y(rows)+'"/>';for(let y=0;y<=rows;y++)s+='<line class="grid" x1="'+X(0)+'" y1="'+Y(y)+'" x2="'+X(colW)+'" y2="'+Y(y)+'"/>';
+    const sg=cubSeg(1,1,W,H,b,k==='len'?{dd:2*b}:k==='hid'?{solidHidden:1}:k==='par'?{b3:[1+W+b+1,1+H+b]}:{});sg.forEach(([p,q,d])=>{s+='<line class="sgl'+(d?' dsh':'')+'" x1="'+X(p[0])+'" y1="'+Y(p[1])+'" x2="'+X(q[0])+'" y2="'+Y(q[1])+'"/>'});
+    s+='<text x="'+(X(colW/2))+'" y="13" text-anchor="middle" style="font-weight:700">'+'ABC'[i]+'</text>'});s+='</svg>';
+  const T={len:'zu tief: Die Kanten nach hinten sind doppelt so lang.',hid:'die verdeckten Kanten sind nicht gestrichelt.',par:'die Kanten nach hinten sind nicht parallel und nicht gleich lang.'};
+  const ai=kinds.indexOf('ok');return mc(['Bild A','Bild B','Bild C'],ai,{g:6,b:'Bewerten',q:'Ein Quader ist '+a+' cm breit, '+c+' cm hoch und '+b+' cm tief (1 Häuschen = 5 mm). Welches Schrägbild ist richtig?',svg:s,
+   e:'Richtig ist Bild '+'ABC'[ai]+'. '+kinds.map((k,i)=>k==='ok'?'':'Bild '+'ABC'[i]+': '+T[k]).filter(Boolean).join(' '),h:'Prüfe: Tiefe = '+b+' Häuschen schräg? Verdeckte Kanten gestrichelt? Alle Kanten nach hinten parallel?'})},
+s4_rule:()=>{const T=['Die vordere Fläche wird in wahrer Grösse gezeichnet.','Kanten nach hinten zeichnet man schräg: 1 cm Tiefe = 1 Häuschen schräg.','Verdeckte Kanten zeichnet man gestrichelt.','Kanten, die am Körper parallel sind, sind auch im Schrägbild parallel.'];
+  const Fa={'Kanten nach hinten zeichnet man in voller Länge.':'Man zeichnet sie verkürzt: 1 cm Tiefe = 1 Häuschen schräg.','Verdeckte Kanten lässt man weg.':'Verdeckte Kanten zeichnet man gestrichelt.','Alle Flächen werden in wahrer Grösse gezeichnet.':'Nur die vordere (und die hintere) Fläche sind in wahrer Grösse.','Kanten nach hinten zeichnet man senkrecht nach oben.':'Kanten nach hinten zeichnet man schräg nach hinten oben.'};
+  if(RNG()<.5){const ok=pick(T);return mcFrom(ok,shuffle(Object.keys(Fa)),{g:6,b:'Wissen',q:'Welche Regel für das Schrägbild <b>stimmt</b>?',e:'Richtig: «'+ok+'»',h:'Denk an die Regeln aus dem Theorieeintrag Schrägbild.'})}
+  const w=pick(Object.keys(Fa));return mcFrom(w,shuffle(T),{g:6,b:'Wissen',q:'Welche Regel für das Schrägbild ist <b>falsch</b>?',e:'Falsch: «'+w+'» '+Fa[w],h:'Denk an die Regeln aus dem Theorieeintrag Schrägbild.'})},
+s4_cube:()=>{const want=RNG()<.6;let good=[],bad=[],keys=new Set();let g=0;
+  while((good.length<(want?1:3)||bad.length<(want?3:1))&&g++<3000){const c=randHex();if(!c)continue;const k=canon(c);if(keys.has(k))continue;const ok=fold(c).ok;if(ok&&good.length<(want?1:3)){good.push(c);keys.add(k)}else if(!ok&&bad.length<(want?3:1)){bad.push(c);keys.add(k)}}
+  const all=shuffle([...good.map(c=>[c,1]),...bad.map(c=>[c,0])]);const it=[];let dx=0;all.forEach(([c],i)=>{const W=Math.max(...c.map(p=>p[0]))+1,H=Math.max(...c.map(p=>p[1]))+1;it.push(...netItems(c,dx));it.push(fT([dx+W/2,4.6],'ABCD'[i],{b:1}));dx+=W+1.2});
+  const ai=all.findIndex(([,ok])=>ok===(want?1:0));
+  return mc(['Netz A','Netz B','Netz C','Netz D'],ai,{g:7,b:'Analysieren',q:'Falte die Netze im Kopf. Welches Netz ergibt <b>'+(want?'einen Würfel':'keinen Würfel')+'</b>?',svg:fig(it,'Vier Netze',{s:26}),
+   e:want?'Nur Netz '+'ABCD'[ai]+' lässt sich zu einem Würfel falten. Bei den anderen würden sich Flächen überdecken oder eine Fläche fehlt.':'Netz '+'ABCD'[ai]+' ergibt keinen Würfel: Beim Falten überdecken sich zwei Flächen. Die anderen sind Würfelnetze.',h:'Wähle eine Fläche als Boden und klappe die anderen im Kopf hoch. Liegen zwei Flächen aufeinander?'})},
+s4_opp:()=>{let c;do{c=randHex()}while(!c||!fold(c).ok);const ns=fold(c).ns,mk=R(0,5),opp=ns.findIndex(n=>n===ns[mk].split(',').map(v=>String(-v)).join(','));
+  return{t:'click',g:9,b:'Analysieren',q:'Falte das Würfelnetz im Kopf. Klicke die Fläche an, die der Fläche <b>★</b> gegenüberliegt.',svg:fig(netItems(c,0,{click:1,mark:mk}),'Würfelnetz zum Anklicken',{cls:'clk',maxS:40}),ok:['c'+opp],
+   e:'Gegenüberliegende Flächen berühren sich im Netz nie. Oft liegen sie in einer Reihe mit genau einer Fläche dazwischen.',h:'Gegenüberliegende Flächen haben im Netz keine gemeinsame Kante.'}},
+s4_qnetz:()=>{const a=R(2,5),b=R(1,3),c=R(2,4);const it=[];const rect=(x,y,w,h,cl)=>it.push(fP([[x,y],[x+w,y],[x+w,y+h],[x,y+h]],{cls:cl}));
+  rect(0,0,a,c,'fa');rect(a,0,b,c,'fa');rect(a+b,0,a,c,'fa');rect(2*a+b,0,b,c,'fa');rect(0,-b,a,b,'fb');rect(0,c,a,b,'fb');
+  it.push(fT([a/2,-b-.45],'a = '+a+' cm'),fT([-.2,-b/2],'b = '+b+' cm',{a:'e'}),fT([2*a+2*b+.2,c/2],'c = '+c+' cm',{a:'s'}));
+  const ty=pick(['str','hoch','S']);const Q={str:['Wie lang ist der Streifen aus den vier Seitenflächen (von links nach rechts)?',2*a+2*b,'cm','a + b + a + b = '+a+' + '+b+' + '+a+' + '+b+' = <b>'+(2*a+2*b)+' cm</b>'],
+    hoch:['Wie hoch ist das ganze Netz (von unten nach oben)?',c+2*b,'cm','b + c + b = '+b+' + '+c+' + '+b+' = <b>'+(c+2*b)+' cm</b>'],
+    S:['Wie gross ist der Flächeninhalt des ganzen Netzes?',2*(a*b+a*c+b*c),'cm²','2 · ('+a+' · '+b+') + 2 · ('+a+' · '+c+') + 2 · ('+b+' · '+c+') = '+2*a*b+' + '+2*a*c+' + '+2*b*c+' = <b>'+2*(a*b+a*c+b*c)+' cm²</b>']}[ty];
+  return{t:'num',g:7,b:ty==='S'?'Analysieren':'Anwenden',lv:ty==='S'?2:1,u:Q[2],q:'Das ist das Netz eines Quaders (Grund- und Deckfläche grün). '+Q[0],svg:fig(it,'Quadernetz',{maxS:30}),a:Q[1],e:Q[3],h:'Welche Kanten liegen nebeneinander? Die Seitenflächen sind abwechselnd a und b breit.'}},
+s4_paint:()=>{const n=R(3,5),k=pick([3,2,1,0]);const A={3:8,2:12*(n-2),1:6*(n-2)**2,0:(n-2)**3};
+  return{t:'num',g:9,b:'Analysieren',u:'Würfelchen',q:'Ein grosser Würfel ist aus '+n+' · '+n+' · '+n+' = '+n**3+' kleinen Würfelchen gebaut. Er wird aussen ganz angemalt. Wie viele Würfelchen haben <b>genau '+k+'</b> bemalte Fläche'+(k===1?'':'n')+'?',a:A[k],
+   e:{3:'Nur die 8 Ecken haben 3 bemalte Flächen.',2:'An jeder der 12 Kanten liegen '+(n-2)+' Würfelchen (ohne Ecken): 12 · '+(n-2)+' = '+12*(n-2)+'.',1:'Auf jeder der 6 Flächen liegen in der Mitte '+(n-2)+' · '+(n-2)+' Würfelchen: 6 · '+(n-2)**2+' = '+6*(n-2)**2+'.',0:'Innen liegt ein Würfel aus '+(n-2)+' · '+(n-2)+' · '+(n-2)+' = '+(n-2)**3+' Würfelchen.'}[k],h:'Ecken, Kanten, Flächenmitten oder innen? Zeichne ein Schrägbild.'}},
+s4_wire:()=>{const a=R(3,12),b=R(2,9),c=R(2,8);if(RNG()<.5)return{t:'num',g:9,b:'Anwenden',u:'cm',q:'Für ein Kantenmodell eines Quaders ('+a+' cm × '+b+' cm × '+c+' cm) braucht man Draht für alle Kanten. Wie viel Draht braucht es?',a:4*(a+b+c),e:'Ein Quader hat 12 Kanten, je 4 gleich lange: 4 · ('+a+' + '+b+' + '+c+') = <b>'+4*(a+b+c)+' cm</b>',h:'Wie viele Kanten hat ein Quader? Wie viele davon sind gleich lang?'};
+  return{t:'num',g:9,b:'Analysieren',u:'cm',q:'Für das Kantenmodell eines Quaders braucht man '+4*(a+b+c)+' cm Draht. Er ist '+a+' cm lang und '+b+' cm breit. Wie hoch ist er?',a:c,e:4*(a+b+c)+' : 4 = '+(a+b+c)+' cm; '+(a+b+c)+' − '+a+' − '+b+' = <b>'+c+' cm</b>',h:'Teile zuerst durch 4.'}},
+
+/* ===== Teil 3: Mantel und Oberfläche (LZ 9, 10) ===== */
+s5_Mq:()=>{const a=R(2,9),b=R(2,7),h=R(2,10);return{t:'num',g:10,b:'Anwenden',u:'cm²',q:'Berechne die Mantelfläche M des Quaders (die vier Seitenflächen, ohne Grund- und Deckfläche).',svg:fig(figQuader(a,b,h),'Quader'),a:2*(a+b)*h,
+  e:'u = '+a+' + '+b+' + '+a+' + '+b+' = '+2*(a+b)+' cm; M = u · h = '+2*(a+b)+' · '+h+' = <b>'+2*(a+b)*h+' cm²</b>',h:'M = u · h. u ist der Umfang der Grundfläche.'}},
+s5_Mt:()=>{const [p,q,s]=pick(TRI),L=R(4,15);return{t:'num',g:10,b:'Anwenden',u:'cm²',q:'Berechne die Mantelfläche M des liegenden Dreiecksprismas.',svg:fig(figTriL(p,q,s,L),'Dreiecksprisma',{maxS:24}),a:(p+q+s)*L,
+  e:'u = '+F(p)+' + '+F(q)+' + '+F(s)+' = '+F(p+q+s)+' cm; M = u · h = '+F(p+q+s)+' · '+L+' = <b>'+F((p+q+s)*L)+' cm²</b>',h:'Die Grundfläche ist das Dreieck vorne. Ihr Umfang mal die Höhe des Prismas.'}},
+s5_Mz:()=>{const r=R(2,8),h=R(3,15),d=RNG()<.4;return{t:'num',g:10,b:'Anwenden',u:'cm²',pi:1,q:'Berechne die Mantelfläche M des Zylinders.',svg:fig(cylS(r,h,d?{ld:'d = '+2*r+' cm',lh:'h = '+h+' cm'}:{lr:'r = '+r+' cm',lh:'h = '+h+' cm'}),'Zylinder',{maxS:22}),a:2*PI*r*h,
+  e:'u = 2 · π · r = '+F(2*PI*r)+' cm; M = u · h ≈ '+F(2*PI*r)+' · '+h+' ≈ <b>'+F(2*PI*r*h)+' cm²</b>',h:'M = u · h mit u = 2 · π · r. '+PIH}},
+s5_Sq:()=>{const a=R(2,9),b=R(2,7),h=R(2,10);return{t:'num',g:11,b:'Anwenden',u:'cm²',q:'Berechne die Oberfläche S des Quaders.',svg:fig(figQuader(a,b,h),'Quader'),a:2*a*b+2*(a+b)*h,
+  e:'G = '+a+' · '+b+' = '+a*b+' cm²; M = '+2*(a+b)+' · '+h+' = '+2*(a+b)*h+' cm²; S = 2 · G + M = '+2*a*b+' + '+2*(a+b)*h+' = <b>'+(2*a*b+2*(a+b)*h)+' cm²</b>',h:'S = 2 · G + M. Grund- und Deckfläche zählen beide.'}},
+s5_St:()=>{const [p,q,s]=pick(TRI),L=R(4,15),Gf=p*q/2,M=(p+q+s)*L;return{t:'num',g:11,b:'Anwenden',u:'cm²',q:'Berechne die Oberfläche S des Dreiecksprismas. Das Dreieck hat bei a und b einen rechten Winkel.',svg:fig(figTriL(p,q,s,L,1),'Dreiecksprisma',{maxS:24}),a:2*Gf+M,
+  e:'G = '+F(p)+' · '+F(q)+' : 2 = '+F(Gf)+' cm²; M = ('+F(p)+' + '+F(q)+' + '+F(s)+') · '+L+' = '+F(M)+' cm²; S = 2 · '+F(Gf)+' + '+F(M)+' = <b>'+F(2*Gf+M)+' cm²</b>',h:'Grundfläche = rechtwinkliges Dreieck: A = a · b : 2.'}},
+s5_Sz:()=>{const r=R(2,8),h=R(3,15);return{t:'num',g:11,b:'Anwenden',u:'cm²',pi:1,q:'Berechne die Oberfläche S des Zylinders.',svg:fig(cylS(r,h,{lr:'r = '+r+' cm',lh:'h = '+h+' cm'}),'Zylinder',{maxS:22}),a:2*PI*r*r+2*PI*r*h,
+  e:'G = π · '+r+'² ≈ '+F(PI*r*r)+' cm²; M = 2 · π · '+r+' · '+h+' ≈ '+F(2*PI*r*h)+' cm²; S = 2 · G + M ≈ <b>'+F(2*PI*r*r+2*PI*r*h)+' cm²</b>',h:'S = 2 · G + M. '+PIH}},
+s5_err:()=>{const nm=pick(NAMES),ty=pick(['oneG','area','uh']);const W=['Es wurde nur eine Grundfläche gezählt. Es braucht 2 · G.','Für M wurde die Kreisfläche statt der Umfang genommen.','Der Umfang fehlt: Es wurde nur a · h gerechnet.','Das ist richtig.'];
+  if(ty==='oneG'){const a=R(3,8),b=R(2,6),h=R(2,8);const Gf=a*b,M=2*(a+b)*h;return mcFrom(W[0],shuffle(W.slice(1)),{g:11,b:'Analysieren',q:'Fehler finden: '+nm+' berechnet die Oberfläche des Quaders: S = '+Gf+' + '+M+' = '+(Gf+M)+' cm². Was stimmt?',svg:fig(figQuader(a,b,h),'Quader'),e:'S = 2 · G + M = 2 · '+Gf+' + '+M+' = '+(2*Gf+M)+' cm².',h:'Wie viele Grundflächen hat ein Quader?'})}
+  if(ty==='area'){const r=R(2,6),h=R(4,10);return mcFrom(W[1],shuffle([W[0],W[2],W[3]]),{g:10,b:'Analysieren',q:'Fehler finden: '+nm+' berechnet den Mantel des Zylinders: M = π · '+r+'² · '+h+' ≈ '+F(PI*r*r*h)+' cm². Was stimmt?',svg:fig(cylS(r,h,{lr:'r = '+r+' cm',lh:'h = '+h+' cm'}),'Zylinder',{maxS:22}),e:'M = u · h = 2 · π · '+r+' · '+h+' ≈ '+F(2*PI*r*h)+' cm². (π · r² · h wäre das Volumen.)',h:'M = u · h. Was ist u beim Kreis?'})}
+  const a=R(3,8),b=R(2,6),h=R(2,8);return mcFrom(W[2],shuffle([W[0],W[1],W[3]]),{g:10,b:'Analysieren',q:'Fehler finden: '+nm+' berechnet den Mantel des Quaders: M = '+a+' · '+h+' = '+a*h+' cm². Was stimmt?',svg:fig(figQuader(a,b,h),'Quader'),e:'M = u · h = 2 · ('+a+' + '+b+') · '+h+' = '+2*(a+b)*h+' cm².',h:'Der Mantel besteht aus vier Seitenflächen.'})},
+s5_all:()=>{const ty=pick(['dose','geschenk','zelt','schachtel']);
+  if(ty==='dose'){const d=pick([6,7,8,10]),h=pick([8,10,11,12]);return{t:'num',g:10,b:'Anwenden',u:'cm²',pi:1,q:'Eine Dose hat den Durchmesser '+d+' cm und ist '+h+' cm hoch. Wie viel cm² Papier braucht die Etikette rund um die Dose?',svg:fig(cylS(d/2,h,{ld:'d = '+d+' cm',lh:'h = '+h+' cm'}),'Dose',{maxS:20}),a:PI*d*h,e:'Etikette = Mantel: u = π · '+d+' ≈ '+F(PI*d)+' cm; M = u · h ≈ '+F(PI*d)+' · '+h+' ≈ <b>'+F(PI*d*h)+' cm²</b>',h:'Die Etikette ist der Mantel. '+PIH}}
+  if(ty==='geschenk'){const a=R(15,40),b=R(10,25),h=R(5,15);return{t:'num',g:11,b:'Anwenden',u:'cm²',q:'Ein Geschenk ist eine Schachtel ('+a+' cm × '+b+' cm × '+h+' cm). Wie viel cm² Papier braucht es mindestens, um sie ganz einzupacken?',a:2*(a*b+a*h+b*h),e:'S = 2 · '+a+' · '+b+' + 2 · '+a+' · '+h+' + 2 · '+b+' · '+h+' = '+2*a*b+' + '+2*a*h+' + '+2*b*h+' = <b>'+2*(a*b+a*h+b*h)+' cm²</b>',h:'Ganz einpacken = Oberfläche S.'}}
+  if(ty==='schachtel'){const a=R(10,30),b=R(8,20),h=R(4,12);return{t:'num',g:11,b:'Analysieren',lv:3,u:'cm²',q:'Eine Schachtel ohne Deckel ist '+a+' cm lang, '+b+' cm breit und '+h+' cm hoch. Wie viel cm² Karton braucht es?',a:a*b+2*(a+b)*h,e:'Ohne Deckel: nur 1 · G + M = '+a*b+' + '+2*(a+b)+' · '+h+' = '+a*b+' + '+2*(a+b)*h+' = <b>'+(a*b+2*(a+b)*h)+' cm²</b>',h:'Ohne Deckel fehlt eine Grundfläche.'}}
+  const [p,q,s]=pick([[0.8,0.6,1],[1.2,0.9,1.5],[0.9,1.2,1.5],[1.2,1.6,2]]),L=pick([2,2.5,3]);const g=2*p,A=g*q+2*s*L;
+  return{t:'num',g:11,b:'Analysieren',lv:3,u:'m²',q:'Ein Zelt hat die Form eines liegenden Dreiecksprismas: Das Dreieck vorne ist '+F(g)+' m breit und '+F(q)+' m hoch, die schrägen Seiten sind je '+F(s)+' m lang. Das Zelt ist '+F(L)+' m lang. Wie viel m² Stoff braucht es <b>ohne Boden</b>?',
+   svg:fig(prism([[0,0],[g,0],[p,q]],L,'lie',{labels:[[0,1,F(g)+' m'],[1,2,F(s)+' m',[q,p]],[1,4,F(L)+' m']],extra:[()=>fL([p,q],[p,0],{cls:'hl',dash:1}),()=>fT([p-g*.03,q*.3],F(q)+' m',{a:'e',c:'hlt'})]}),'Zelt',{maxS:60}),a:A,
+   e:'Vorne + hinten: 2 · ('+F(g)+' · '+F(q)+' : 2) = '+F(g*q)+' m². Zwei schräge Dachflächen: 2 · '+F(s)+' · '+F(L)+' = '+F(2*s*L)+' m². Zusammen: <b>'+F(A)+' m²</b> (der Boden fehlt).',h:'Welche Flächen hat das Zelt ohne Boden?'}},
+
+/* ===== Teil 3: Raum- und Hohlmasse (LZ 12) ===== */
+s6_c1:()=>{const c=conv(P1);return{t:'num',g:8,b:'Anwenden',u:c.t,q:'Rechne um: <b>'+F4(c.v)+' '+c.f+' = ? '+c.t+'</b>',a:c.a,tol:Math.abs(c.a)*1e-7+1e-9,e:convE(c),h:'Raummasse: Umrechnungszahl 1000. Hohlmasse: Umrechnungszahl 10. 1 dm³ = 1 l, 1 cm³ = 1 ml.'}},
+s6_c2:()=>{const c=conv(P2);return{t:'num',g:8,b:'Anwenden',u:c.t,q:'Rechne um: <b>'+F4(c.v)+' '+c.f+' = ? '+c.t+'</b>',a:c.a,tol:Math.abs(c.a)*1e-7+1e-9,e:convE(c),h:'Gehe Schritt für Schritt über die Einheitenreihe. 1 l = 1 dm³ = 1000 cm³, 1 m³ = 1000 l.'}},
+s6_multi:()=>{const cs=[conv(P1),conv(P1),conv(P2)];return{t:'multi',g:8,b:'Anwenden',q:'Rechne um.',fields:cs.map(c=>({lab:F4(c.v)+' '+c.f+' =',a:c.a,u:c.t,tol:Math.abs(c.a)*1e-7+1e-9})),e:cs.map(convE).join('<br>'),h:'Raummasse: 1000. Hohlmasse: 10. 1 dm³ = 1 l.'}},
+s6_eq:()=>{const c=conv([...P1,...P2]);const w=[c.a*10,c.a/10,c.a*100,c.a/100].map(clean).filter(v=>v!==c.a&&decs(v)<=5);const ok=F4(c.a)+' '+c.t;
+  return mcFrom(ok,shuffle(w).map(v=>F(v,5)+' '+c.t),{g:8,b:'Verstehen',q:'Welche Angabe ist gleich gross wie <b>'+F4(c.v)+' '+c.f+'</b>?',e:convE(c),h:'Grössere Einheit → mehr Stück der kleineren Einheit.'})},
+s6_err:()=>{const nm=pick(NAMES),ty=pick(['r100','h100','dir','ok']);let v,f,t,wrong,ok,e;
+  if(ty==='r100'){[f,t]=pick([['dm³','cm³'],['m³','dm³'],['cm³','mm³']]);v=pick([2,3.5,1.2,0.4,4.5]);wrong=v*100;ok='Bei Raummassen ist die Umrechnungszahl 1000, nicht 100.';e=F(v)+' '+f+' = '+F(v*1000)+' '+t}
+  if(ty==='h100'){[f,t]=pick([['l','dl'],['dl','cl'],['cl','ml']]);v=pick([2,3.5,1.2,0.4,4.5]);wrong=v*100;ok='Bei Hohlmassen ist die Umrechnungszahl 10, nicht 100.';e=F(v)+' '+f+' = '+F(v*10)+' '+t}
+  if(ty==='dir'){[f,t]=pick([['dm³','cm³'],['l','ml'],['m³','dm³']]);v=pick([2,3,5,4.5,1.5]);wrong=v/1000;ok='Falsche Richtung: Von der grösseren zur kleineren Einheit wird die Zahl grösser.';e=F(v)+' '+f+' = '+F(v*1000)+' '+t}
+  if(ty==='ok'){[f,t]=pick([['l','dm³'],['ml','cm³'],['dm³','l']]);v=pick([2,3.5,250,0.75]);wrong=v;ok='Das ist richtig.';e='1 '+f+' = 1 '+t+', also '+F(v)+' '+f+' = '+F(v)+' '+t+'.'}
+  return mcFrom(ok,shuffle(['Bei Raummassen ist die Umrechnungszahl 1000, nicht 100.','Bei Hohlmassen ist die Umrechnungszahl 10, nicht 100.','Falsche Richtung: Von der grösseren zur kleineren Einheit wird die Zahl grösser.','Das ist richtig.'].filter(x=>x!==ok)),{g:8,b:'Analysieren',q:'Fehler finden: '+nm+' schreibt <b>'+F4(v)+' '+f+' = '+F(wrong,5)+' '+t+'</b>. Was stimmt?',e:'Richtig: '+e+'.',h:'Welche Umrechnungszahl gilt hier? Wird die Zahl grösser oder kleiner?'})},
+s6_sum:()=>{const a=pick([0.5,1,1.5,2]),b=pick([2,3,4,5]),c=pick([100,150,250,500]),tot=a+b/10+c/1000;return{t:'num',g:8,b:'Anwenden',u:'l',q:'Rechne zusammen und gib das Resultat in Litern an: <b>'+F(a)+' l + '+b+' dl + '+c+' ml</b>',a:tot,tol:1e-6,e:b+' dl = '+F(b/10)+' l; '+c+' ml = '+F(c/1000,3)+' l; '+F(a)+' + '+F(b/10)+' + '+F(c/1000,3)+' = <b>'+F(tot,3)+' l</b>',h:'Rechne zuerst alles in Liter um.'}},
+s6_est:()=>{const L=[['Eine Tasse fasst etwa …','2 dl',['2 l','2 ml','2 hl']],['Eine Badewanne fasst etwa …','150 l',['150 ml','15 m³','150 cl']],['Ein Teelöffel fasst etwa …','5 ml',['5 dl','5 l','5 hl']],['Ein Klassenzimmer hat ein Volumen von etwa …','200 m³',['200 dm³','200 l','200 cm³']],['Ein Würfelzucker hat ein Volumen von etwa …','2 cm³',['2 dm³','2 m³','2 l']],['Eine Milchpackung fasst …','1 l',['1 ml','1 hl','1 m³']],['Ein Putzkessel fasst etwa …','10 l',['10 ml','10 hl','10 m³']],['Eine Schuhschachtel hat ein Volumen von etwa …','6 dm³',['6 cm³','6 m³','6 mm³']]];
+  const [q,ok,w]=pick(L);return mcFrom(ok,w,{g:8,b:'Bewerten',q,e:'Passend ist '+ok+'. Stell dir vor: 1 l = 1 dm³ ist ein Würfel mit 10 cm Kantenlänge.',h:'1 l = Milchpackung, 1 dl = kleines Glas, 1 m³ = Würfel mit 1 m Kante.'})},
+
+/* ===== Teil 3: Volumen (LZ 11, 13, 14) ===== */
+s7_Vq:()=>{const a=R(2,12),b=R(2,9),h=half(2,10);return{t:'num',g:12,b:'Anwenden',u:'cm³',q:'Berechne das Volumen V des Quaders.',svg:fig(figQuader(a,b,h),'Quader'),a:a*b*h,e:'G = '+a+' · '+b+' = '+a*b+' cm²; V = G · h = '+a*b+' · '+F(h)+' = <b>'+F(a*b*h)+' cm³</b>',h:'V = G · h. Beim Quader: G = a · b.'}},
+s7_Vt:()=>{const [p,q,s]=pick(TRI),L=R(4,15),Gf=p*q/2;return{t:'num',g:12,b:'Anwenden',u:'cm³',q:'Berechne das Volumen V des Dreiecksprismas (rechter Winkel zwischen a und b).',svg:fig(figTriL(p,q,s,L,1),'Dreiecksprisma',{maxS:24}),a:Gf*L,e:'G = '+F(p)+' · '+F(q)+' : 2 = '+F(Gf)+' cm²; V = G · h = '+F(Gf)+' · '+L+' = <b>'+F(Gf*L)+' cm³</b>. Die Seite c brauchst du nicht.',h:'V = G · h. Die Grundfläche ist das Dreieck (grün).'}},
+s7_Vz:()=>{const r=R(2,8),h=R(3,15),d=RNG()<.4;return{t:'num',g:12,b:'Anwenden',u:'cm³',pi:1,q:'Berechne das Volumen V des Zylinders.',svg:fig(cylS(r,h,d?{ld:'d = '+2*r+' cm',lh:'h = '+h+' cm'}:{lr:'r = '+r+' cm',lh:'h = '+h+' cm'}),'Zylinder',{maxS:22}),a:PI*r*r*h,e:(d?'r = '+r+' cm; ':'')+'G = π · '+r+'² ≈ '+F(PI*r*r)+' cm²; V = G · h ≈ '+F(PI*r*r)+' · '+h+' ≈ <b>'+F(PI*r*r*h)+' cm³</b>',h:'V = G · h mit G = π · r². '+PIH}},
+s7_Vtr:()=>{const a=R(6,12),c=R(2,a-2),t=R(2,6),L=R(5,15),Gf=(a+c)/2*t;return{t:'num',g:12,b:'Anwenden',u:'cm³',q:'Berechne das Volumen des Prismas. Die Grundfläche ist ein Trapez (vorne, Höhe rot).',svg:fig(figTrapL(a,c,t,L),'Trapezprisma',{maxS:22}),a:Gf*L,e:'G = ('+a+' + '+c+') : 2 · '+t+' = '+F(Gf)+' cm²; V = G · h = '+F(Gf)+' · '+L+' = <b>'+F(Gf*L)+' cm³</b>',h:'Zuerst die Trapezfläche: (a + c) : 2 · Höhe des Trapezes.'}},
+s7_l:()=>{const a=pick([40,50,60,80,100]),b=pick([25,30,35,40]),w=pick([20,25,30,35]);const it=prism([[0,0],[a/10,0],[a/10,b/10],[0,b/10]],(w+10)/10,'stand',{labels:[[0,1,'a = '+a+' cm'],[1,2,'b = '+b+' cm']]});
+  it.push(fL(PR([0,0,w/10]),PR([a/10,0,w/10]),{cls:'hl'}),fL(PR([a/10,0,w/10]),PR([a/10,b/10,w/10]),{cls:'hl'}),fT([-.2,w/20],'Wasser '+w+' cm',{a:'e',c:'hlt'}));
+  return{t:'num',g:12,b:'Anwenden',u:'l',q:'Ein Aquarium ist '+a+' cm lang und '+b+' cm breit. Das Wasser steht '+w+' cm hoch. Wie viele Liter Wasser sind drin?',svg:fig(it,'Aquarium',{maxS:30}),a:a*b*w/1000,
+  e:'V = '+a+' · '+b+' · '+w+' = '+F(a*b*w)+' cm³ = '+F(a*b*w/1000)+' dm³ = <b>'+F(a*b*w/1000)+' l</b>',h:'Rechne in cm³ und dann um: 1000 cm³ = 1 dm³ = 1 l.'}},
+s7_h:()=>{if(RNG()<.5){const a=R(4,12),b=R(3,10),h=R(2,15);return{t:'num',g:13,b:'Anwenden',u:'cm',q:'Ein Quader hat das Volumen '+F(a*b*h)+' cm³. Die Grundfläche ist '+a+' cm × '+b+' cm. Wie hoch ist er?',a:h,e:'G = '+a+' · '+b+' = '+a*b+' cm²; h = V : G = '+F(a*b*h)+' : '+a*b+' = <b>'+h+' cm</b>',h:'h = V : G.'}}
+  const r=pick([5,6,8,10]),V=pick([1,2,3,5]);return{t:'num',g:13,b:'Analysieren',lv:3,u:'cm',pi:1,q:'In einen zylinderförmigen Topf (Radius '+r+' cm) giesst man '+V+' l Wasser. Wie hoch steht das Wasser?',svg:fig(cylS(r/2,4,{lr:'r = '+r+' cm'}),'Topf',{maxS:22}),a:V*1000/(PI*r*r),
+  e:V+' l = '+V*1000+' cm³; G = π · '+r+'² ≈ '+F(PI*r*r)+' cm²; h = V : G ≈ '+V*1000+' : '+F(PI*r*r)+' ≈ <b>'+F(V*1000/(PI*r*r))+' cm</b>',h:'Liter in cm³ umrechnen, dann h = V : G. '+PIH}},
+s7_g:()=>{const Gf=R(12,90),h=R(3,15);return{t:'num',g:13,b:'Anwenden',u:'cm²',q:'Ein Prisma hat das Volumen '+F(Gf*h)+' cm³ und ist '+h+' cm hoch. Wie gross ist seine Grundfläche G?',a:Gf,e:'G = V : h = '+F(Gf*h)+' : '+h+' = <b>'+Gf+' cm²</b>',h:'V = G · h, also G = V : h.'}},
+s7_tr1:()=>{const ty=pick(['milch','pool','klotz','wuerfel']);
+  if(ty==='milch'){const s=pick([6,7,8]),V=pick([1,0.5]);return{t:'num',g:14,b:'Analysieren',u:'cm',q:'Eine Packung mit quadratischer Grundfläche ('+s+' cm × '+s+' cm) soll '+F(V)+' l fassen. Wie hoch muss sie mindestens sein?',a:V*1000/(s*s),e:F(V)+' l = '+F(V*1000)+' cm³; G = '+s*s+' cm²; h = '+F(V*1000)+' : '+s*s+' ≈ <b>'+F(V*1000/(s*s))+' cm</b>',h:'Liter in cm³, dann h = V : G.'}}
+  if(ty==='pool'){const L=pick([20,25]),B=pick([8,10,12]),t1=pick([1,1.2]),t2=pick([2,2.5,3]),V=(t1+t2)/2*L*B;return{t:'num',g:14,b:'Analysieren',u:'m³',q:'Ein Schwimmbecken ist '+L+' m lang und '+B+' m breit. Es ist auf einer Seite '+F(t1)+' m tief, auf der anderen '+F(t2)+' m (der Boden ist schräg). Wie viele m³ Wasser passen hinein?',a:V,
+    svg:fig([fP([[0,0],[L,0],[L,t2],[0,t2]].map(([x,y])=>[x/4,y]),{cls:'fw'}),fP([[0,t2-t1],[L/4,0],[L/4,t2],[0,t2]],{cls:'fa'}),fT([L/8,t2+.35],L+' m'),fT([-.15,t2-t1/2],F(t1)+' m',{a:'e'}),fT([L/4+.15,t2/2],F(t2)+' m',{a:'s'})],'Seitenansicht Becken',{maxS:40}),
+    e:'Die Seitenansicht ist ein Trapez: G = ('+F(t1)+' + '+F(t2)+') : 2 · '+L+' = '+F((t1+t2)/2*L)+' m². V = G · '+B+' = <b>'+F(V)+' m³</b> (= '+F(V*1000)+' l).',h:'Das Becken ist ein liegendes Prisma. Die Grundfläche ist die Seitenansicht (Trapez).'}}
+  if(ty==='klotz'){const k=pick([2,3]),a=k*R(2,5),b=k*R(2,4),c=k*R(1,3);return{t:'num',g:14,b:'Analysieren',u:'Würfel',q:'Wie viele Würfel mit '+k+' cm Kantenlänge passen in eine Schachtel ('+a+' cm × '+b+' cm × '+c+' cm)?',a:(a/k)*(b/k)*(c/k),e:(a/k)+' · '+(b/k)+' · '+(c/k)+' = <b>'+(a*b*c)/(k**3)+' Würfel</b> (oder: '+a*b*c+' cm³ : '+k**3+' cm³)',h:'Wie viele Würfel passen in eine Reihe, in eine Schicht?'}}
+  const a=R(3,10);return{t:'num',g:14,b:'Analysieren',u:'cm',q:'Ein Würfel hat das Volumen '+a**3+' cm³. Wie lang ist eine Kante?',a,e:a+' · '+a+' · '+a+' = '+a**3+' → Kante <b>'+a+' cm</b>',h:'Welche Zahl mal sich selbst mal sich selbst ergibt '+a**3+'?'}},
+s7_tr2:()=>{const ty=pick(['all','h','r']);const O=['doppelt so gross','4-mal so gross','8-mal so gross','6-mal so gross'];
+  if(ty==='all')return mcFrom(O[2],O,{g:14,b:'Bewerten',q:'Bei einem Quader werden <b>alle Kanten verdoppelt</b>. Wie verändert sich das Volumen?',e:'V = a · b · c. Jeder Faktor wird doppelt so gross: 2 · 2 · 2 = 8. Das Volumen wird 8-mal so gross.',h:'Probiere es mit 1 cm × 1 cm × 1 cm aus.'});
+  if(ty==='h')return mcFrom(O[0],O,{g:14,b:'Bewerten',q:'Bei einem Zylinder wird nur die <b>Höhe verdoppelt</b>. Wie verändert sich das Volumen?',e:'V = G · h. G bleibt gleich, h wird doppelt so gross → V doppelt so gross.',h:'Was passiert mit G?'});
+  return mcFrom(O[1],O,{g:14,b:'Bewerten',q:'Bei einem Zylinder wird nur der <b>Radius verdoppelt</b>. Wie verändert sich das Volumen?',e:'G = π · r · r wird 2 · 2 = 4-mal so gross, h bleibt → V 4-mal so gross.',h:'Wie verändert sich die Grundfläche, wenn r doppelt so gross ist?'})}
+};
+const REASON={p:'Grund- und Deckfläche sind deckungsgleiche, parallele Vielecke. Die Seitenflächen sind Rechtecke.',z:'Grund- und Deckfläche sind deckungsgleiche, parallele Kreise. Der Mantel ist gekrümmt.',pyr:'Es hat nur eine Grundfläche. Die Seitenflächen laufen in einer Spitze zusammen.',pyr3:'Es hat nur eine Grundfläche. Die Seitenflächen laufen in einer Spitze zusammen.',kegel:'Er hat nur eine Kreisfläche und eine Spitze, also keine Deckfläche.',stumpf:'Grund- und Deckfläche sind parallel, aber verschieden gross. Die Seitenflächen sind Trapeze.',kugel:'Sie hat keine ebene Fläche.'};
+
+/* ---------- Lernziele und Abschnitte ---------- */
+const TEILE={1:'Teil 1 – Grundflächen',2:'Teil 2 – Prismen, Schrägbilder, Netze, Raum- und Hohlmasse',3:'Teil 3 – Mantel, Oberfläche, Volumen'};
+const GOALS=[
+ [1,'*','s1','… den Flächeninhalt von Rechteck, Dreieck, Parallelogramm, Trapez und Kreis sowie den Kreisumfang berechnen.',1],
+ [2,'*','s2','… eine zusammengesetzte Fläche in Teilflächen zerlegen und ihren Flächeninhalt berechnen.',1],
+ [3,'***','s2','… Gelerntes in Transferaufgaben anwenden.',1],
+ [4,'*','s3','… an einem Prisma Grundfläche, Deckfläche, Seitenfläche und Höhe benennen.',2],
+ [5,'*','s3','… entscheiden, ob ein Körper ein Prisma oder ein Zylinder ist, und meine Entscheidung mit einer Eigenschaft begründen.',2],
+ [6,'**','s4','… das Schrägbild eines Quaders auf Häuschenpapier zeichnen.',2],
+ [7,'**','s4','… das Netz eines Quaders zeichnen und Grund- und Deckfläche einfärben.',2],
+ [8,'*','s6','… Volumen zwischen cm³, dm³ und Litern umrechnen.',2],
+ [9,'***','s4','… Gelerntes in Transferaufgaben anwenden.',2],
+ [10,'*','s5','… die Mantelfläche von Prismen und Zylindern mit M = u · h berechnen.',3],
+ [11,'*','s5','… die Oberfläche von Prismen und Zylindern mit S = 2 · G + M berechnen.',3],
+ [12,'*','s7','… das Volumen von Prismen und Zylindern mit V = G · h berechnen.',3],
+ [13,'**','s7','… aus Volumen und Grundfläche die Höhe oder aus Volumen und Höhe die Grundfläche berechnen.',3],
+ [14,'***','s7','… Gelerntes in Transferaufgaben anwenden.',3]
+];
+const S={
+s1:{nr:1,teil:1,title:'Flächen berechnen',gen:['s1_rect','s1_tri','s1_tri2','s1_par','s1_trap','s1_kA','s1_kd','s1_kU','s1_formula','s1_err','s1_which'],
+theory:()=>`<p>Der <b>Flächeninhalt</b> A sagt, wie gross eine Fläche ist. Einheit: cm², m² … Der <b>Umfang</b> U ist die Länge des Randes. Einheit: cm, m …</p>
+<div class="figgrid">${[[figRect(3.5,2.2,'a','b'),'Rechteck','A = a · b'],[figTri(4,2.5,1.2,'g','h'),'Dreieck','A = g · h : 2'],[figPar(3.4,2.2,1.2,'g','h'),'Parallelogramm','A = g · h'],[figTrap(4.4,2,2.2,1,'a','c','h'),'Trapez','A = (a + c) : 2 · h'],[figKreis(1.4,'r'),'Kreis','A = π · r²<br>U = 2 · π · r']].map(([f,n,t])=>'<div class="fcard">'+svgFig(f,{label:n,s:30})+'<div class="fn2">'+n+'</div><div class="fo">'+t+'</div></div>').join('')}</div>
+<div class="merk">Die <b>Höhe h</b> steht immer <b>senkrecht</b> (rechter Winkel) auf der Grundseite. Rechne nie mit der schrägen Seite! Beim Kreis: r = d : 2.</div>
+<p><b>Beispiel Trapez:</b> a = 8 cm, c = 4 cm, h = 3 cm → A = (8 + 4) : 2 · 3 = 6 · 3 = <b>18 cm²</b></p>
+<p><b>Beispiel Kreis:</b> r = 5 cm → A = π · 5 · 5 ≈ <b>78,54 cm²</b>, U = 2 · π · 5 ≈ <b>31,42 cm</b>. Runde auf 2 Stellen nach dem Komma.</p>`},
+s2:{nr:2,teil:1,title:'Zusammengesetzte Flächen',gen:['s2_L','s2_haus','s2_teich','s2_platz','s2_way','s2_err','s2_tr1','s2_tr2'],
+theory:()=>`<p>Viele Flächen bestehen aus Rechtecken, Dreiecken, Trapezen oder Kreisen. Es gibt zwei Wege:</p>
+<ul><li><b>Zerlegen:</b> Teile die Fläche in bekannte Figuren, berechne jede und <b>addiere</b>.</li><li><b>Ergänzen:</b> Ergänze zu einer grossen Figur und <b>ziehe</b> das, was zu viel ist, <b>ab</b>.</li></ul>
+<div class="fig">${svgFig([fP([[0,0],[8,0],[8,3],[3,3],[3,6],[0,6]],{cls:'fa'}),fL([3,0],[3,3],{cls:'hl',dash:1}),fT([4,-.5],'8 cm'),fT([-.25,3],'6 cm',{a:'e'}),fT([1.5,6.45],'3 cm'),fT([8.25,1.5],'3 cm',{a:'s'}),fT([1.5,3],'A₁',{b:1}),fT([5.5,1.5],'A₂',{b:1}),
+  fP([[11,0],[19,0],[19,6],[11,6]],{cls:'fw',dash:1}),fP([[11,0],[19,0],[19,3],[14,3],[14,6],[11,6]],{cls:'fa'}),fT([16.5,4.5],'weg',{c:'hlt'})],{label:'Zerlegen und Ergänzen',maxW:560})}</div>
+<p><b>Zerlegen:</b> A₁ = 3 · 6 = 18 cm², A₂ = 5 · 3 = 15 cm² → A = 33 cm²<br><b>Ergänzen:</b> 8 · 6 = 48 cm², weg: 5 · 3 = 15 cm² → A = 33 cm²</p>
+<div class="merk">Fehlende Längen findest du durch Rechnen: Die ganze Seite minus das bekannte Stück. Zeichne die Trennlinie ein und schreibe die Masse an.</div>
+<p><b>Transfer:</b> Manchmal ist die Fläche gegeben und eine Seite gesucht. Dann rechnest du rückwärts, z. B. Rechteck: b = A : a.</p>`},
+s3:{nr:3,teil:2,title:'Prisma und Zylinder',gen:['s3_class','s3_reason','s3_clickG','s3_clickS','s3_name','s3_count','s3_h','s3_true'],
+theory:()=>`<div class="merk">Ein <b>Prisma</b> hat zwei <b>deckungsgleiche, parallele</b> Vielecke als <b>Grundfläche</b> und <b>Deckfläche</b>. Die <b>Seitenflächen</b> sind Rechtecke. Die <b>Höhe h</b> ist der Abstand zwischen Grund- und Deckfläche.</div>
+<div class="fig">${svgFig([...prism(shiftP(ngon(5,1.8,PI/10),1.8,1.8),3.5,'stand',{hiG:1}),...shiftP2(prism([[0,0],[3.4,0],[1.7,2.6]],5,'lie',{hiG:1}),6,0),...shiftP2(cylS(1.5,3.5,{hiG:1}),13,0)],{label:'Fünfeckprisma, liegendes Dreiecksprisma und Zylinder',maxW:560})}</div>
+<p>Grün: Grund- und Deckfläche. Ein Prisma heisst nach seiner Grundfläche: <b>Dreiecksprisma, Viereckprisma</b> (z. B. Quader, Würfel), <b>Fünfeckprisma</b> …</p>
+<p>Ein <b>Zylinder</b> hat zwei deckungsgleiche, parallele <b>Kreise</b> als Grund- und Deckfläche. Die gekrümmte Fläche heisst <b>Mantel</b>.</p>
+<div class="merk"><b>Achtung, liegendes Prisma:</b> Die Grundfläche muss nicht unten sein! Liegt das Prisma, ist sie vorne. Die Höhe ist dann die Länge nach hinten.</div>
+<p><b>Kein Prisma</b> sind z. B. Pyramide und Kegel (Spitze, keine Deckfläche), Pyramidenstumpf (Deckfläche kleiner) und Kugel.</p>
+<div class="tblwrap"><table class="t"><tr><th>Prisma mit n-Eck als Grundfläche</th><th>Ecken</th><th>Kanten</th><th>Flächen</th></tr><tr><td>Dreiecksprisma (n = 3)</td><td>6</td><td>9</td><td>5</td></tr><tr><td>Quader (n = 4)</td><td>8</td><td>12</td><td>6</td></tr><tr><td>allgemein</td><td>2 · n</td><td>3 · n</td><td>n + 2</td></tr></table></div>`},
+s4:{nr:4,teil:2,title:'Schrägbild und Netz',gen:['s4_sk1','s4_sk2','s4_draw','s4_pick','s4_rule','s4_cube','s4_opp','s4_qnetz','s4_paint','s4_wire','s4_sk3'],
+theory:()=>`<p><b>Schrägbild eines Quaders</b> auf Häuschenpapier (1 Häuschen = 5 mm):</p>
+<ol><li>Zeichne die <b>Vorderfläche in wahrer Grösse</b>.</li><li>Zeichne die Kanten nach hinten <b>schräg nach hinten oben</b>: <b>1 cm Tiefe = 1 Häuschen schräg</b> (diagonal).</li><li>Verbinde die hinteren Ecken. Alle Kanten nach hinten sind <b>parallel und gleich lang</b>.</li><li><b>Verdeckte Kanten</b> zeichnest du <b>gestrichelt</b>.</li></ol>
+<div class="fig">${gridSvg(12,8,cubSeg(1,1,6,4,2),{face:[[1,1],[7,1],[7,5],[1,5]],u:20,texts:[[4,0.35,'3 cm'],[11.6,3.2,'2 cm tief','end']],label:'Schrägbild Quader 3 cm × 2 cm × 2 cm'})}<div class="cap">Quader 3 cm breit, 2 cm hoch, 2 cm tief.</div></div>
+<p><b>Netz eines Quaders:</b> Die 6 Flächen werden aufgeklappt. Grund- und Deckfläche (grün) hängen an derselben Seitenfläche. Die vier Seitenflächen bilden einen Streifen.</p>
+<div class="fig">${svgFig([...[[0,0,4,2],[4,0,3,2],[7,0,4,2],[11,0,3,2]].map(([x,y,w,h])=>fP([[x,y],[x+w,y],[x+w,y+h],[x,y+h]],{cls:'fa'})),fP([[0,-3],[4,-3],[4,0],[0,0]],{cls:'fb'}),fP([[0,2],[4,2],[4,5],[0,5]],{cls:'fb'}),fT([2,-3.45],'a'),fT([-.2,-1.5],'b',{a:'e'}),fT([14.2,1],'c',{a:'s'}),fT([2,-1.5],'G',{b:1}),fT([2,3.5],'D',{b:1})],{label:'Quadernetz',maxW:520})}</div>
+<p><a class="btn" href="#sb">✎ Zum Schrägbild-Trainer</a></p>
+<div class="merk">Gegenüberliegende Flächen eines Würfels berühren sich im Netz nie. Es gibt 11 verschiedene Würfelnetze.</div>`},
+s5:{nr:6,teil:3,title:'Mantel und Oberfläche',gen:['s5_Mq','s5_Mt','s5_Mz','s5_Sq','s5_St','s5_Sz','s5_err','s5_all'],
+theory:()=>`<p>Der <b>Mantel M</b> sind alle Seitenflächen zusammen (ohne Grund- und Deckfläche). Wickelst du ihn ab, entsteht ein <b>Rechteck</b>: so lang wie der Umfang u der Grundfläche, so hoch wie das Prisma.</p>
+<div class="formel">M = u · h</div>
+<div class="fig">${svgFig([fP([[0,0],[9.42,0],[9.42,3],[0,3]],{cls:'fa'}),fP(arcE(2,4.5,1.5,1.5,0,2*PI),{cls:'fb'}),fP(arcE(2,-1.5,1.5,1.5,0,2*PI),{cls:'fb'}),fT([4.71,-.5+0],'u = 2 · π · r'),fT([9.7,1.5],'h',{a:'s'}),fT([2,4.5],'G',{b:1}),fT([2,-1.5],'G',{b:1}),fT([5.5,1.5],'M',{b:1})],{label:'Netz eines Zylinders',maxW:420})}<div class="cap">Netz eines Zylinders: Mantel = Rechteck u × h.</div></div>
+<p>Die <b>Oberfläche S</b> ist die ganze Hülle: zwei Grundflächen und der Mantel.</p>
+<div class="formel">S = 2 · G + M</div>
+<div class="tblwrap"><table class="t"><tr><th>Körper</th><th>G</th><th>u</th><th>M = u · h</th></tr><tr><td>Quader a × b × h</td><td>a · b</td><td>2 · (a + b)</td><td>2 · (a + b) · h</td></tr><tr><td>Zylinder</td><td>π · r²</td><td>2 · π · r</td><td>2 · π · r · h</td></tr></table></div>
+<p><b>Beispiel Quader</b> 5 cm × 3 cm × 4 cm: G = 15 cm², u = 16 cm, M = 16 · 4 = 64 cm², S = 2 · 15 + 64 = <b>94 cm²</b>.</p>`},
+s6:{nr:5,teil:2,title:'Raum- und Hohlmasse',gen:['s6_c1','s6_c2','s6_multi','s6_eq','s6_err','s6_sum','s6_est'],
+theory:()=>`<p><b>Raummasse</b> (Volumen): Die Umrechnungszahl ist <b>1000</b>.</p>
+<div class="tblwrap"><table class="t tb"><tr><td><b>m³</b></td><td>→ · 1000 →</td><td><b>dm³</b></td><td>→ · 1000 →</td><td><b>cm³</b></td><td>→ · 1000 →</td><td><b>mm³</b></td></tr></table></div>
+<p><b>Hohlmasse</b> (Flüssigkeiten): Die Umrechnungszahl ist <b>10</b>.</p>
+<div class="tblwrap"><table class="t tb"><tr><td><b>hl</b></td><td>· 100</td><td><b>l</b></td><td>· 10</td><td><b>dl</b></td><td>· 10</td><td><b>cl</b></td><td>· 10</td><td><b>ml</b></td></tr></table></div>
+<div class="merk"><b>1 dm³ = 1 l</b> &nbsp; <b>1 cm³ = 1 ml</b> &nbsp; <b>1 m³ = 1000 l</b><br>Von der grösseren zur kleineren Einheit: <b>mal</b> (die Zahl wird grösser). Von der kleineren zur grösseren: <b>geteilt</b>.</div>
+<p>Beispiele: 3,5 dm³ = 3500 cm³ · 2,5 l = 25 dl · 750 ml = 0,75 l · 4000 cm³ = 4 l</p>`},
+s7:{nr:7,teil:3,title:'Volumen',gen:['s7_Vq','s7_Vt','s7_Vz','s7_Vtr','s7_l','s7_h','s7_g','s7_tr1','s7_tr2'],
+theory:()=>`<p>Das <b>Volumen V</b> sagt, wie viel Platz ein Körper einnimmt. Stell dir vor: Die Grundfläche wird Schicht für Schicht übereinandergestapelt, bis die Höhe h erreicht ist.</p>
+<div class="formel">V = G · h</div>
+<div class="tblwrap"><table class="t"><tr><th>Körper</th><th>Volumen</th></tr><tr><td>Quader</td><td>V = a · b · h</td></tr><tr><td>Dreiecksprisma</td><td>V = (Dreiecksfläche) · h</td></tr><tr><td>Zylinder</td><td>V = π · r² · h</td></tr></table></div>
+<p><b>Beispiel Zylinder</b> r = 4 cm, h = 10 cm: G = π · 4² ≈ 50,27 cm², V ≈ 50,27 · 10 ≈ <b>502,65 cm³</b> ≈ 0,5 l</p>
+<div class="merk"><b>Rückwärts rechnen:</b> h = V : G und G = V : h. Bei Litern zuerst umrechnen: 1 l = 1000 cm³.</div>
+<p><b>Beispiel:</b> Ein Quader hat V = 360 cm³ und G = 8 cm · 5 cm = 40 cm² → h = 360 : 40 = <b>9 cm</b>.</p>`}
+};
+function shiftP2(items,dx,dy){return items.map(i=>i.t==='p'?Object.assign({},i,{pts:i.pts.map(([x,y])=>[x+dx,y+dy])}):Object.assign({},i,{p:[i.p[0]+dx,i.p[1]+dy]}))}
+const ORDER=['s1','s2','s3','s4','s6','s5','s7'];
+const NTASK=8;
+
+const LVL={s1_rect:1,s1_tri:1,s1_par:1,s1_trap:1,s1_kU:1,s1_formula:1,s1_err:2,s1_which:2,
+ s2_L:2,s2_haus:1,s2_teich:2,s2_platz:2,s2_way:1,s2_err:2,s2_tr1:3,s2_tr2:3,
+ s3_class:1,s3_reason:2,s3_clickG:1,s3_clickS:1,s3_name:1,s3_count:1,s3_h:2,s3_true:1,
+ s4_sk1:1,s4_sk2:2,s4_sk3:3,s4_draw:1,s4_pick:2,s4_rule:1,s4_cube:2,s4_opp:3,s4_qnetz:1,s4_paint:3,s4_wire:3,
+ s5_Mq:1,s5_Mt:1,s5_Mz:1,s5_Sq:1,s5_St:2,s5_Sz:2,s5_err:2,s5_all:2,
+ s6_c1:1,s6_c2:2,s6_multi:2,s6_eq:1,s6_err:2,s6_sum:2,s6_est:1,
+ s7_Vq:1,s7_Vt:1,s7_Vz:1,s7_Vtr:2,s7_l:2,s7_h:2,s7_g:2,s7_tr1:3,s7_tr2:3};
+const NVL=['','Grundanforderung','mittel','erhöht'];
+/* ---------- Aufgaben anzeigen und prüfen ---------- */
+const TASK={};let TID=0;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+function parseVal(s){s=String(s).trim().replace(/[’'\s%]/g,'').replace(/[−–]/g,'-').replace(/,/g,'.');if(!s)return NaN;
+  const m=s.match(/^(-?\d+(?:\.\d+)?)[\/:](-?\d+(?:\.\d+)?)$/);if(m){const d=+m[2];return d?+m[1]/d:NaN}
+  return /^-?\d*\.?\d+$/.test(s)?+s:NaN}
+function numIn(id,lab,w){return '<label class="nl">'+(lab||'')+'<input type="text" inputmode="decimal" autocomplete="off" spellcheck="false" id="'+id+'"'+(w?' style="width:'+w+'"':'')+'></label>'}
+function make(key,nr,test){const x=G[key]();x.key=key;if(!x.lv)x.lv=LVL[key]||1;x.id='q'+(++TID);x.nr=nr;x.test=!!test;TASK[x.id]=x;return x}
+function taskHtml(x){
+  const id=x.id;let pre='',body='';
+  if(x.svg)pre+='<div class="fig">'+x.svg+'</div>';
+  if(x.t==='mc')body='<div class="opts'+(x.o.length<=3?' row3':'')+'">'+x.o.map((o,i)=>'<label class="opt"><input type="radio" name="'+id+'" value="'+i+'"><span>'+o+'</span></label>').join('')+'</div>';
+  if(x.t==='num')body='<div class="numrow">'+numIn(id+'n','Antwort:')+'<span>'+(x.u||'')+'</span></div><div class="hint">'+(x.pi?PIH+' ':'')+'Schreibe den Rechenweg ins Heft, gib hier das Resultat ein.</div>';
+  if(x.t==='multi')body=x.fields.map((f,i)=>'<div class="numrow" style="margin-bottom:6px">'+numIn(id+'f'+i,f.lab,'7em')+'<span>'+(f.u||'')+'</span></div>').join('')+'<div class="hint">Gib Zahlen ein, z. B. 3500 oder 0,25.</div>';
+  if(x.t==='draw')body='<div class="hint">Klicke auf Gitterpunkte. Ein Klick auf einen gesetzten Punkt entfernt ihn.</div>';
+  if(x.t==='click')body='<div class="hint">Klicke direkt auf eine Fläche im Bild.</div>';
+  if(x.t==='sketch'){pre='<div class="fig">'+sketchSvg(x)+'</div>';body=sketchHtml(x)}
+  const tags=(x.nr?'<span class="tag">Aufgabe '+x.nr+'</span>':'')+'<span class="tag nv nv'+x.lv+'" title="Niveau">'+'*'.repeat(x.lv)+' '+NVL[x.lv]+'</span><span class="tag">Lernziel '+x.g+'</span><span class="tag b">'+x.b+'</span>';
+  const btns=x.test?(x.t==='draw'&&0?'<button class="btn sec" data-reset="'+id+'">Punkte löschen</button>':''):
+    '<button class="btn" data-chk="'+id+'">Prüfen</button>'+(x.t==='draw'?'<button class="btn sec" data-reset="'+id+'">Punkte löschen</button>':'')+'<button class="btn sec" data-sol="'+id+'" hidden>Lösungsweg zeigen</button>';
+  return '<div class="q" id="'+id+'"><div class="head">'+tags+'<span class="st"></span></div><p class="qt">'+x.q+'</p>'+pre+body+'<div class="row">'+btns+'</div><div class="fbx"></div><div class="solx"></div></div>';
+}
+function bindTask(x){
+  const el=document.getElementById(x.id);
+  const c=el.querySelector('[data-chk]');if(c)c.addEventListener('click',()=>{check(x);updBlock()});
+  const sb=el.querySelector('[data-sol]');if(sb)sb.addEventListener('click',()=>showSol(x));
+  el.querySelectorAll('input[type=text]').forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter'&&c){c.click()}}));
+  if(x.t==='draw'){x.pts=[];const svg=el.querySelector('svg.ksi');
+    svg.addEventListener('click',e=>{if(x.locked)return;const k=JSON.parse(svg.dataset.ks);const pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;const p=pt.matrixTransform(svg.getScreenCTM().inverse());
+      const gx=Math.round((p.x-k.p)/k.u+k.xmin),gy=Math.round(k.ymax-(p.y-k.p)/k.u);if(gx<k.xmin||gx>k.xmax||gy<k.ymin||gy>k.ymax)return;
+      const j=x.pts.findIndex(q=>q[0]===gx&&q[1]===gy);if(j>=0)x.pts.splice(j,1);else{x.pts.push([gx,gy]);if(x.pts.length>x.need)x.pts.shift()}drawUsr(x,svg);el.querySelector('.fbx').innerHTML='';});
+    el.querySelector('[data-reset]').addEventListener('click',()=>{if(x.locked)return;x.pts=[];drawUsr(x,svg);el.querySelector('.fbx').innerHTML=''});}
+  if(x.t==='sketch'){x.segs=[];x.pend=null;x.mode='s';const svg=el.querySelector('svg.ksi'),fb=el.querySelector('.fbx');
+    const redraw=()=>{drawSketch(x,svg);fb.innerHTML=''};
+    svg.addEventListener('click',e=>{if(x.locked)return;const k=JSON.parse(svg.dataset.ks);const pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;const p=pt.matrixTransform(svg.getScreenCTM().inverse());
+      const gx=Math.round((p.x-k.p)/k.u+k.xmin),gy=Math.round(k.ymax-(p.y-k.p)/k.u);if(gx<k.xmin||gx>k.xmax||gy<k.ymin||gy>k.ymax)return;
+      if(!x.pend){x.pend=[gx,gy]}else if(x.pend[0]===gx&&x.pend[1]===gy){x.pend=null}else{const a=x.pend,b=[gx,gy];const j=x.segs.findIndex(([p,q])=>p[0]===a[0]&&p[1]===a[1]&&q[0]===b[0]&&q[1]===b[1]||p[0]===b[0]&&p[1]===b[1]&&q[0]===a[0]&&q[1]===a[1]);
+        if(j>=0)x.segs.splice(j,1);else x.segs.push([a,b,x.mode==='d'?1:0]);x.pend=null}redraw()});
+    el.querySelectorAll('.skm').forEach(bt=>bt.addEventListener('click',()=>{x.mode=bt.dataset.m;el.querySelectorAll('.skm').forEach(q=>q.classList.toggle('on',q===bt))}));
+    el.querySelector('[data-undo]').addEventListener('click',()=>{if(x.locked)return;if(x.pend)x.pend=null;else x.segs.pop();redraw()});
+    el.querySelector('[data-clear]').addEventListener('click',()=>{if(x.locked)return;x.segs=[];x.pend=null;svg.querySelector('g.sol').innerHTML='';redraw()});}
+  if(x.t==='click'){x.sel=null;el.querySelectorAll('path.reg').forEach(p=>p.addEventListener('click',()=>{if(x.locked)return;el.querySelectorAll('path.reg').forEach(q=>q.classList.remove('sel','badsel','oksel'));p.classList.add('sel');x.sel=p.dataset.r;el.querySelector('.fbx').innerHTML=''}))}
+}
+function segSvg(k,segs,cls){const X=v=>k.p+(v-k.xmin)*k.u,Y=v=>k.p+(k.ymax-v)*k.u;return segs.map(([a,b,d])=>'<line class="'+cls+(d?' dsh':'')+'" x1="'+X(a[0])+'" y1="'+Y(a[1])+'" x2="'+X(b[0])+'" y2="'+Y(b[1])+'"/>').join('')}
+function drawUsr(x,svg){const k=JSON.parse(svg.dataset.ks),X=v=>k.p+(v-k.xmin)*k.u,Y=v=>k.p+(k.ymax-v)*k.u;let s='';
+  x.pts.forEach(([a,b])=>{s+='<circle class="upt" cx="'+X(a)+'" cy="'+Y(b)+'" r="6"/>'});svg.querySelector('g.usr').innerHTML=s}
+function drawSketch(x,svg){const k=JSON.parse(svg.dataset.ks),X=v=>k.p+(v-k.xmin)*k.u,Y=v=>k.p+(k.ymax-v)*k.u;
+  let s=segSvg(k,x.segs,'sgl usl'+(x.bad?' bad':''));const ends=new Set();x.segs.forEach(([a,b])=>{ends.add(a+'');ends.add(b+'')});
+  ends.forEach(e=>{const[a,b]=e.split(',').map(Number);s+='<circle class="ept" cx="'+X(a)+'" cy="'+Y(b)+'" r="3.5"/>'});
+  if(x.pend)s+='<circle class="upt" cx="'+X(x.pend[0])+'" cy="'+Y(x.pend[1])+'" r="7"/>';svg.querySelector('g.usr').innerHTML=s}
+function near(a,b,t){return Math.abs(a-b)<=(t??0.006)}
+function tolOf(x){return x.pi?Math.max(.006,Math.abs(x.a)*.002):(x.tol??Math.max(.006,Math.abs(x.a)*1e-9))}
+function check(x,silent){
+  const el=document.getElementById(x.id);let ok=null;
+  if(x.t==='mc'){const s=el.querySelector('input:checked');if(s){ok=+s.value===x.a;el.querySelectorAll('.opt').forEach(o=>o.classList.remove('ok','bad'));if(ok)s.closest('.opt').classList.add('ok');else if(!silent)s.closest('.opt').classList.add('bad');}}
+  if(x.t==='num'){const i=el.querySelector('#'+x.id+'n'),v=parseVal(i.value);if(!isNaN(v)){ok=near(v,x.a,tolOf(x));mark(i,ok)}}
+  if(x.t==='multi'){const ins=x.fields.map((f,i)=>el.querySelector('#'+x.id+'f'+i)),vs=ins.map(i=>parseVal(i.value));if(vs.every(v=>!isNaN(v))){ok=true;ins.forEach((i,j)=>{const f=x.fields[j],r=near(vs[j],f.a,f.tol??Math.max(.006,Math.abs(f.a)*1e-9));mark(i,r);if(!r)ok=false})}}
+  if(x.t==='draw'){if(x.pts.length>=x.need){ok=x.target.every(([a,b])=>x.pts.some(p=>p[0]===a&&p[1]===b));
+      el.querySelectorAll('.upt').forEach(c=>c.classList.toggle('bad',!ok));if(ok){const svg=el.querySelector('svg.ksi'),k=JSON.parse(svg.dataset.ks),[x0,y0,W,H,d]=x.cub;svg.querySelector('g.sol').innerHTML=segSvg(k,cubSeg(x0,y0,W,H,d),'sgl ok')}}}
+  if(x.t==='sketch'){if(x.segs.length){const T=pieces(x.target),U=pieces([...x.given,...x.segs]);let miss=0,extra=0,dash=0;
+      T.forEach((d,k)=>{if(!U.has(k))miss++;else if(U.get(k)!==d)dash++});U.forEach((d,k)=>{if(!T.has(k))extra++});ok=!miss&&!extra&&!dash;x.diag={miss,extra,dash};
+      if(ok){const svg=el.querySelector('svg.ksi'),kk=JSON.parse(svg.dataset.ks);svg.querySelector('g.sol').innerHTML='';svg.querySelector('g.usr').querySelectorAll('.usl').forEach(l=>l.classList.add('ok'))}}}
+  if(x.t==='click'){if(x.sel){ok=x.ok.includes(x.sel);const p=el.querySelector('path.reg[data-r="'+x.sel+'"]');if(p){p.classList.remove('sel');p.classList.add(ok?'oksel':(silent?'sel':'badsel'))}}}
+  const f=el.querySelector('.fbx');
+  if(ok===null){if(!silent)f.innerHTML='<div class="fb bad">'+(x.t==='draw'?'Setze zuerst drei Punkte.':x.t==='sketch'?'Zeichne zuerst Kanten.':x.t==='click'?'Klicke zuerst eine Fläche an.':'Gib zuerst eine Antwort ein.')+'</div>';return null}
+  x.tries=(x.tries||0)+1;
+  if(ok){x.solved=true;if(x.t==='draw'||x.t==='click'||x.t==='sketch')x.locked=true;el.classList.add('done');el.querySelector('.st').textContent='✓';if(!silent){f.innerHTML='<div class="fb ok"><b>Richtig!</b> '+x.e+'</div>';const sb=el.querySelector('[data-sol]');if(sb)sb.hidden=true}}
+  else if(!silent){const dg=x.t==='sketch'&&x.diag?' '+[x.diag.miss?'Es fehlen noch Kanten (oder Teile davon).':'',x.diag.extra?'Mindestens eine Linie ist zu viel oder liegt falsch.':'',x.diag.dash?'Bei '+(x.diag.dash>1?'einigen Kanten':'einer Kante')+' stimmt «gestrichelt / durchgezogen» nicht.':''].filter(Boolean).join(' '):'';f.innerHTML='<div class="fb bad"><b>Noch nicht richtig.</b>'+dg+' '+(x.h?'Tipp: '+x.h:'')+' Korrigiere und prüfe nochmals.</div>';el.querySelector('[data-sol]').hidden=false}
+  return ok}
+function mark(i,ok){i.classList.remove('ok','bad');i.classList.add(ok?'ok':'bad')}
+function showSol(x){const el=document.getElementById(x.id);el.querySelector('.solx').innerHTML='<div class="sol"><b>Lösungsweg:</b> '+x.e+'</div>';
+  if(x.t==='draw'){const svg=el.querySelector('svg.ksi'),k=JSON.parse(svg.dataset.ks),[x0,y0,W,H,d]=x.cub,X=v=>k.p+(v-k.xmin)*k.u,Y=v=>k.p+(k.ymax-v)*k.u;
+    svg.querySelector('g.sol').innerHTML=segSvg(k,cubSeg(x0,y0,W,H,d),'sgl ok')+x.target.map(([a,b])=>'<circle class="spt" cx="'+X(a)+'" cy="'+Y(b)+'" r="7"/>').join('')}
+  if(x.t==='sketch'){const svg=el.querySelector('svg.ksi'),k=JSON.parse(svg.dataset.ks);svg.querySelector('g.sol').innerHTML=segSvg(k,x.target,'sgl solg')}
+  if(x.t==='click')el.querySelectorAll('path.reg').forEach(p=>{if(x.ok.includes(p.dataset.r))p.classList.add('solr')})}
+
+/* ---------- Übungsblock eines Abschnitts ---------- */
+function makeSet(keys,n,nv){const out=[],seen=new Set();let pool=[],guard=0;
+  while(out.length<n&&guard++<(nv?900:200)){if(!pool.length)pool=shuffle(keys);const k=pool.shift();if(out.length&&out[out.length-1].key===k&&keys.length>1)continue;
+    let x,t=0;do{x=make(k,out.length+1)}while(seen.has(x.q+(x.svg||''))&&++t<15);if(seen.has(x.q+(x.svg||'')))continue;if(nv&&x.lv!==nv){delete TASK[x.id];continue}seen.add(x.q+(x.svg||''));out.push(x)}
+  return out}
+let SECNV=0;
+function renderBlock(k){const box=document.getElementById('blk');const set=makeSet(S[k].gen,NTASK,SECNV);set.forEach((x,i)=>x.nr=i+1);box.innerHTML=set.length?set.map(taskHtml).join(''):'<div class="box">Zu diesem Thema gibt es keine Aufgaben mit diesem Niveau. Wähle ein anderes Niveau.</div>';set.forEach(bindTask);updBlock()}
+function updBlock(){const box=document.getElementById('blk');if(!box)return;const n=box.querySelectorAll('.q').length,d=box.querySelectorAll('.q.done').length;
+  const c=document.getElementById('cnt2');if(c)c.innerHTML='<b>'+d+'</b> von '+n+' gelöst'+(d===n&&n?' – super! Hol dir neue Aufgaben oder mach weiter.':'');
+  const b=document.getElementById('bar2');if(b)b.style.width=(n?d/n*100:0)+'%'}
+
+/* ---------- Ansichten ---------- */
+const LS='lu19-grundflaeche-hoehe-lernziele';
+let done={};try{done=JSON.parse(localStorage.getItem(LS)||'{}')}catch(e){done={}}
+function save(){try{localStorage.setItem(LS,JSON.stringify(done))}catch(e){}}
+const lzOf=k=>GOALS.filter(g=>g[2]===k).map(g=>g[0]);
+const lzLabel=k=>{const a=lzOf(k);if(a.length===1)return 'LZ '+a[0];const cons=a.every((v,i)=>!i||v===a[i-1]+1);return 'LZ '+(cons?a[0]+'–'+a[a.length-1]:a.join(', '))};
+function nav(cur){
+  let h='<div class="grp">Start</div><a href="#lernziele" class="'+(cur==='lernziele'?'on':'')+'"><span class="n">★</span>Lernziele</a>';
+  [1,2,3].forEach(t=>{h+='<div class="grp">Teil '+t+'</div>';ORDER.filter(k=>S[k].teil===t).forEach(k=>{h+='<a href="#'+k+'" class="'+(cur===k?'on':'')+'"><span class="n">'+S[k].nr+'</span><span>'+S[k].title+'<span class="lzs">'+lzLabel(k)+'</span></span></a>';if(k==='s4')h+='<a href="#sb" class="'+(cur==='sb'?'on':'')+'"><span class="n">✎</span><span>Schrägbild-Trainer<span class="lzs">LZ 6 · zeichnen üben</span></span></a>'})});
+  h+='<div class="grp">Testen</div><a href="#test" class="'+(cur==='test'?'on':'')+'"><span class="n">✓</span>Lernkontrolle</a>';
+  h+='<div class="grp">Auf Papier (optional)</div><a href="#ab" class="'+(cur==='ab'?'on':'')+'"><span class="n">⎙</span>Arbeitsblatt drucken</a>';
+  $('#side').innerHTML=h;
+}
+function goalList(){let h='';[1,2,3].forEach(t=>{h+='<div class="teilh">'+TEILE[t]+'</div>';GOALS.filter(g=>g[4]===t).forEach(([n,lv,k,tx])=>{h+='<label class="goal" for="g'+n+'"><input type="checkbox" id="g'+n+'" data-g="'+n+'" '+(done[n]?'checked':'')+'><span class="txt">'+n+'. Ich kann '+esc(tx)+'<div class="meta"><span class="stars">'+lv+'</span> · Thema '+S[k].nr+': '+S[k].title+'</div></span><a class="go" href="#'+k+'">Üben →</a></label>'})});return h}
+function viewStart(){
+  const cnt=GOALS.filter(g=>done[g[0]]).length;
+  const cards=ORDER.map(k=>'<a class="card" href="#'+k+'"><span class="n">Thema '+S[k].nr+' · '+lzLabel(k).replace('LZ','Lernziel'+(lzOf(k).length>1?'e':''))+'</span><b>'+S[k].title+'</b><span class="m">Theorie und '+NTASK+' Übungen mit immer neuen Zahlen</span></a>').join('');
+  $('#main').innerHTML=`<h2>Grundfläche · Höhe</h2>
+  <p class="lead">Zu jedem Lernziel findest du eine kurze <b>Theorie</b> und <b>${NTASK} Aufgaben</b>, die du direkt hier löst. Bei manchen Aufgaben klickst du ins Bild: Flächen am Körper, Kanten im Schrägbild oder Flächen im Würfelnetz. Im <b>Schrägbild-Trainer</b> zeichnest du ganze Schrägbilder selbst. Jedes Mal, wenn du die Seite neu lädst oder «Neue Aufgaben» drückst, bekommst du neue Aufgaben. Jede Aufgabe zeigt ihr Niveau: <b>*</b> Grundanforderung, <b>**</b> mittel, <b>***</b> erhöht. Beim Üben kannst du ein Niveau auswählen. In der <b>Lernkontrolle</b> testest du dich zu jedem Teil.</p>
+  <div class="box goalbox"><h3>Meine Lernziele</h3><p style="margin:0;color:var(--muted);font-size:.95rem">Ich kann … Hake ab, was du sicher kannst. * Grundanforderungen · ** mittlere · *** erhöhte Anforderungen</p>
+  <div style="margin-top:10px;font-weight:600"><span id="cnt">${cnt}</span> von ${GOALS.length}</div><div class="prog"><div id="bar" style="width:${cnt/GOALS.length*100}%"></div></div>
+  <div class="goals">${goalList()}</div></div>
+  <h3 style="margin-top:24px">Üben nach Lernzielen</h3><div class="cards">${cards}</div>
+  <p class="foot">Grundlage: mathbuch 2, LU 19. Deine Haken werden nur auf diesem Gerät gespeichert. Übungsresultate werden nicht gespeichert. Lieber auf Papier? Unter <a href="#ab">Arbeitsblatt drucken</a> erstellst du ein Übungsblatt mit Lösungen.</p>`;
+  document.querySelectorAll('.goal input').forEach(i=>i.addEventListener('change',()=>{done[i.dataset.g]=i.checked;save();const c=GOALS.filter(g=>done[g[0]]).length;$('#cnt').textContent=c;$('#bar').style.width=(c/GOALS.length*100)+'%'}));
+}
+function viewSec(k){const s=S[k],gs=GOALS.filter(g=>g[2]===k);const i=ORDER.indexOf(k),nx=ORDER[i+1];
+  $('#main').innerHTML=`<h2>Thema ${s.nr}: ${s.title}</h2>
+  <div class="box goalbox"><h3>${gs.length>1?'Lernziele':'Lernziel'} <span class="hint" style="font-weight:400">· ${TEILE[s.teil]}</span></h3>${gs.map(([n,lv,,tx])=>'<div class="lzl"><span class="stars">'+lv+'</span> <b>'+n+'.</b> Ich kann '+esc(tx)+'</div>').join('')}</div>
+  <div class="tabs" role="tablist"><button role="tab" data-tab="th">Theorie</button><button role="tab" data-tab="ex">Üben</button><button role="tab" data-tab="ab">Arbeitsblätter</button></div>
+  <div id="p_th" class="pane"><div class="box theory">${s.theory()}</div><div class="row"><button class="btn" data-go="ex">Jetzt üben →</button></div></div>
+  <div id="p_ex" class="pane" hidden>
+   <div class="nvrow"><span class="hint" style="margin:0">Niveau:</span>${[0,1,2,3].map(v=>'<button class="btn sec nvb'+(v===SECNV?' on':'')+'" data-nv="'+v+'">'+(v?'*'.repeat(v)+' '+NVL[v]:'Alle gemischt')+'</button>').join('')}</div>
+   <div class="blkhead"><div id="cnt2" class="hint" style="font-size:.95rem"></div><button class="btn" id="newset">↻ Neue Aufgaben</button></div>
+   <div class="prog"><div id="bar2"></div></div>
+   <div id="blk"></div>
+   <div class="row" style="margin-top:6px"><button class="btn" id="newset2">↻ Neue Aufgaben</button>${nx?'<a class="btn sec" href="#'+nx+'">Weiter zu Thema '+S[nx].nr+' →</a>':'<a class="btn sec" href="#test">Zur Lernkontrolle →</a>'}</div>
+  </div>`;
+  const show=t=>{if(t==='ab'){AB_PRE=k;location.hash='ab';return}document.querySelectorAll('.tabs button').forEach(b=>{const on=b.dataset.tab===t;b.classList.toggle('on',on);b.setAttribute('aria-selected',on)});
+    $('#p_th').hidden=t!=='th';$('#p_ex').hidden=t!=='ex';};
+  document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.tab)));
+  $('[data-go]').addEventListener('click',()=>{show('ex');window.scrollTo(0,0)});
+  document.querySelectorAll('[data-nv]').forEach(b=>b.addEventListener('click',()=>{SECNV=+b.dataset.nv;document.querySelectorAll('[data-nv]').forEach(q=>q.classList.toggle('on',q===b));renderBlock(k)}));
+  renderBlock(k);show('th');
+  ['#newset','#newset2'].forEach(b=>$(b).addEventListener('click',()=>{renderBlock(k);if(b==='#newset2')$('.tabs').scrollIntoView({behavior:'smooth'})}));
+}
+/* Schrägbild-Trainer */
+let SBLV=1,SBOK=0,SBN=0;
+function viewSB(){const x=make('s4_sk'+SBLV,0);Object.assign(x,sketchTask(SBLV,true),{key:'s4_sk'+SBLV,id:x.id,nr:0,test:false});TASK[x.id]=x;
+  const lb={1:'Stufe 1 · Vorderfläche gegeben',2:'Stufe 2 · Quader und Würfel ganz',3:'Stufe 3 · Dreiecks- und Trapezprismen'};
+  $('#main').innerHTML=`<h2>Schrägbild-Trainer</h2><p class="lead">Hier übst du, Schrägbilder auf Häuschenpapier zu zeichnen. Klicke zwei Gitterpunkte an, dazwischen entsteht eine Kante. Verdeckte Kanten zeichnest du <b>gestrichelt</b>. Mit «Prüfen» siehst du, ob alles stimmt.</p>
+  <div class="row" style="margin:0 0 14px">${[1,2,3].map(l=>'<button class="btn'+(l===SBLV?'':' sec')+'" data-lv="'+l+'">'+lb[l]+'</button>').join('')}</div>
+  <div id="sbt">${taskHtml(x)}</div>
+  <div class="row"><button class="btn" id="sbnew">↻ Neues Schrägbild</button><span class="hint" id="sbcnt">Heute richtig gezeichnet: ${SBOK}</span><a class="btn sec" href="#s4" style="margin-left:auto">Zurück zu Thema 4</a></div>`;
+  bindTask(x);const c=document.querySelector('#sbt [data-chk]');c.addEventListener('click',()=>{if(x.solved&&!x.counted){x.counted=1;SBOK++;$('#sbcnt').textContent='Heute richtig gezeichnet: '+SBOK}});
+  document.querySelectorAll('[data-lv]').forEach(b=>b.addEventListener('click',()=>{SBLV=+b.dataset.lv;viewSB()}));$('#sbnew').addEventListener('click',viewSB)}
+/* Lernkontrolle: pro Teil oder gemischt */
+let TEST=[],TPART=1;
+const TPER={1:{s1:5,s2:5},2:{s3:4,s4:4,s6:3},3:{s5:5,s7:5},0:{s1:2,s2:2,s3:2,s4:2,s5:2,s6:1,s7:2}};
+function newTest(){TEST=[];const per=TPER[TPART];ORDER.forEach(k=>{if(!per[k])return;const g=shuffle(S[k].gen);for(let i=0;i<per[k];i++)TEST.push(make(g[i%g.length],0,true))});TEST.forEach((x,i)=>x.nr=i+1)}
+function viewTest(){newTest();
+  const pb=[1,2,3,0].map(t=>'<button class="btn'+(t===TPART?'':' sec')+'" data-tp="'+t+'">'+(t?'Teil '+t:'Alles gemischt')+'</button>').join('');
+  $('#main').innerHTML=`<h2>Lernkontrolle</h2><p class="lead">Wähle den Teil. Löse alle ${TEST.length} Aufgaben und klicke dann auf <b>Auswerten</b>. Ziel: mindestens 80 %.</p>
+  <div class="row" style="margin:0 0 6px">${pb}</div><p class="hint" style="margin:0 0 14px">${TPART?TEILE[TPART]:'Aufgaben aus allen drei Teilen'}</p>
+  <div id="tst">${TEST.map(taskHtml).join('')}</div>
+  <div class="row"><button class="btn" id="eval">Auswerten</button><button class="btn sec" id="again">↻ Neue Lernkontrolle</button></div><div id="res"></div>`;
+  TEST.forEach(bindTask);
+  document.querySelectorAll('[data-tp]').forEach(b=>b.addEventListener('click',()=>{TPART=+b.dataset.tp;viewTest()}));
+  $('#eval').addEventListener('click',()=>{let pts=0;const wrong={};
+    TEST.forEach(x=>{const el=document.getElementById(x.id);const ok=check(x,true);if(ok)pts++;else wrong[x.g]=1;
+      el.querySelector('.fbx').innerHTML='<div class="fb '+(ok?'ok':'bad')+'"><b>'+(ok?'Richtig.':ok===null?'Keine Antwort.':'Falsch.')+'</b> '+x.e+'</div>';if(!ok&&(x.t==='draw'||x.t==='click'||x.t==='sketch'))showSol(x);if(x.t==='draw'||x.t==='click'||x.t==='sketch')x.locked=true;});
+    const p=Math.round(pts/TEST.length*100);const ws=Object.keys(wrong).map(Number).sort((a,b)=>a-b);
+    const secs=[...new Set(ws.map(g=>GOALS.find(G=>G[0]===g)[2]))];
+    $('#res').innerHTML='<div class="box" style="margin-top:14px"><div class="score">'+pts+' / '+TEST.length+' · '+p+' %</div><p>'+(p>=80?'Sehr gut, du hast das Ziel erreicht! ':'Noch nicht ganz. ')+(ws.length?'Übe nochmals: '+secs.map(k=>'<a href="#'+k+'">Thema '+S[k].nr+' ('+S[k].title+')</a>').join(', ')+'.':'Alles richtig!')+'</p></div>';
+    $('#res').scrollIntoView({behavior:'smooth'});});
+  $('#again').addEventListener('click',()=>{viewTest();window.scrollTo(0,0)});
+}
+
+/* ---------- Arbeitsblatt (PDF) ---------- */
+let AB_PRE=null;const ABMAP={s1:['flaeche','kreis'],s2:['zus'],s3:['koerper'],s4:['schraeg','netz'],s5:['mo'],s6:['umr'],s7:['vol']};
+function abOn(c){return AB_PRE&&ABMAP[AB_PRE]?ABMAP[AB_PRE].includes(c.k):c.on}
+const ABCAT=[
+ {k:'flaeche',l:'Flächeninhalt von Rechteck, Dreieck, Parallelogramm, Trapez',on:true},
+ {k:'kreis',l:'Kreis: Flächeninhalt und Umfang',on:false},
+ {k:'zus',l:'Zusammengesetzte Flächen',on:true},
+ {k:'koerper',l:'Körper erkennen: Prisma, Zylinder oder keins?',on:false},
+ {k:'schraeg',l:'Schrägbild eines Quaders zeichnen',on:false},
+ {k:'netz',l:'Netz eines Quaders zeichnen',on:false},
+ {k:'mo',l:'Mantelfläche und Oberfläche berechnen',on:true},
+ {k:'umr',l:'Raum- und Hohlmasse umrechnen',on:false},
+ {k:'vol',l:'Volumen berechnen',on:true}
+];
+const unfill=items=>items.map(i=>i.t==='p'&&/\bfb\b/.test(i.cls||'')?Object.assign({},i,{cls:i.cls.replace('fb','fa')}):i);
+function abTask(k){
+  if(k==='flaeche'){const ty=pick(['rect','tri','par','trap']);
+    if(ty==='rect'){const a=R(3,9),b=R(2,6);return{text:'Berechne den Flächeninhalt des Rechtecks.',fig:figRect(a,b,'a = '+a+' cm','b = '+b+' cm'),sol:'A = '+a+' · '+b+' = '+F(a*b)+' cm²'}}
+    if(ty==='tri'){const g=R(4,10),h=R(2,6),o=R(1,g-1),s=r1(Math.hypot(g-o,h));return{text:'Berechne den Flächeninhalt des Dreiecks.',fig:figTri(g,h,o,'g = '+g+' cm','h = '+h+' cm','s = '+F(s)+' cm'),sol:'A = '+g+' · '+h+' : 2 = '+F(g*h/2)+' cm²'}}
+    if(ty==='par'){const g=R(4,9),h=R(2,5),o=R(1,3),s=r1(Math.hypot(o,h));return{text:'Berechne den Flächeninhalt des Parallelogramms.',fig:figPar(g,h,o,'g = '+g+' cm','h = '+h+' cm','s = '+F(s)+' cm'),sol:'A = '+g+' · '+h+' = '+F(g*h)+' cm²'}}
+    const a=R(6,10),o1=R(1,2),c=R(2,a-o1-1),h=R(2,5);return{text:'Berechne den Flächeninhalt des Trapezes.',fig:figTrap(a,c,h,o1,'a = '+a+' cm','c = '+c+' cm','h = '+h+' cm'),sol:'A = ('+a+' + '+c+') : 2 · '+h+' = '+F((a+c)/2*h)+' cm²'}}
+  if(k==='kreis'){const r=R(2,9),d=RNG()<.5;return{text:'Berechne den Flächeninhalt und den Umfang des Kreises. Runde auf 2 Stellen.',fig:figKreis(r,d?'d = '+2*r+' cm':'r = '+r+' cm',d),sol:(d?'r = '+r+' cm. ':'')+'A = π · '+r+'² ≈ '+F(PI*r*r)+' cm²; U = 2 · π · '+r+' ≈ '+F(2*PI*r)+' cm'}}
+  if(k==='zus'){const ty=pick(['L','haus','teich']);
+    if(ty==='L'){const W=R(6,10),H=R(5,8),c=R(2,W-2),d=R(2,H-2),w=W-c,hh=H-d;return{text:'Berechne den Flächeninhalt der Figur.',fig:[fP([[0,0],[W,0],[W,d],[c,d],[c,H],[0,H]],{cls:'fa'}),fT([W/2,-.5],W+' cm'),fT([-.25,H/2],H+' cm',{a:'e'}),fT([c/2,H+.45],c+' cm'),fT([W+.25,d/2],d+' cm',{a:'s'})],sol:c+' · '+H+' + '+w+' · '+d+' = '+(c*H)+' + '+(w*d)+' = '+(c*H+w*d)+' cm²'}}
+    if(ty==='haus'){const a=R(4,8),b=R(3,5),t=R(2,3);return{text:'Berechne den Flächeninhalt der Hausfigur.',fig:[fP([[0,0],[a,0],[a,b],[a/2,b+t],[0,b]],{cls:'fa'}),fL([a/2,b],[a/2,b+t],{cls:'hl',dash:1}),fT([a/2,-.5],a+' cm'),fT([a+.25,b/2],b+' cm',{a:'s'}),fT([a/2+.15,b+t/2],t+' cm',{a:'s',c:'hlt'})],sol:a+' · '+b+' + '+a+' · '+t+' : 2 = '+F(a*b)+' + '+F(a*t/2)+' = '+F(a*b+a*t/2)+' cm²'}}
+    const a=R(8,12),b=R(6,8),r=R(1,2);return{text:'Ein Rasen hat einen runden Teich. Berechne die Rasenfläche.',fig:[fP([[0,0],[a,0],[a,b],[0,b]],{cls:'fa'}),fP(arcE(a/2,b/2,r,r,0,2*PI,48),{cls:'fw'}),fL([a/2,b/2],[a/2+r,b/2],{cls:'thin'}),fT([a/2,b/2+r+.55],'r = '+r+' m'),fT([a/2,-.5],a+' m'),fT([a+.25,b/2],b+' m',{a:'s'})],sol:a+' · '+b+' − π · '+r+'² ≈ '+F(a*b)+' − '+F(PI*r*r)+' ≈ '+F(a*b-PI*r*r)+' m²'}}
+  if(k==='koerper'){const kk=pick(Object.keys(KOERPER)),K=KOERPER[kk],it=K.mk({hiG:1});return{text:'Wie heisst der Körper? Ist er ein Prisma, ein Zylinder oder keins von beiden? Begründe. Färbe bei einem Prisma oder Zylinder Grund- und Deckfläche grün.',fig:unfill(it),lines:3,
+    sol:(K.k==='z'?'Zylinder. ':K.name+': '+(K.k==='p'?'Prisma. ':'weder Prisma noch Zylinder. '))+REASON[K.k==='w'?kk:K.k],solFig:K.k==='w'?null:it}}
+  if(k==='schraeg'){const a=R(2,5),c=R(1,3),b=R(1,3);return{text:'Zeichne das Schrägbild eines Quaders: '+a+' cm breit, '+c+' cm hoch und '+b+' cm tief. Zeichne verdeckte Kanten gestrichelt.',grid:[150,60],
+    sol:'Vorderfläche '+a+' cm × '+c+' cm; Kanten nach hinten '+b+' Häuschen schräg; 3 verdeckte Kanten gestrichelt.',solFig:cubSeg(0,0,2*a,2*c,b).map(([p,q,d])=>fL(p,q,{dash:d?1:0}))}}
+  if(k==='netz'){let a,b,c;do{a=R(2,4);b=R(1,3);c=R(1,3)}while(2*a+2*b>14||c+2*b>7||a===b&&b===c);const it=[];const rect=(x,y,w,h,cl)=>it.push(fP([[x,y],[x+w,y],[x+w,y+h],[x,y+h]],{cls:cl}));
+    rect(0,0,a,c,'fa');rect(a,0,b,c,'fa');rect(a+b,0,a,c,'fa');rect(2*a+b,0,b,c,'fa');rect(0,-b,a,b,'fb');rect(0,c,a,b,'fb');
+    return{text:'Zeichne das Netz eines Quaders ('+a+' cm lang, '+b+' cm breit, '+c+' cm hoch). Färbe Grund- und Deckfläche grün.',grid:[150,75],sol:'Streifen aus 4 Seitenflächen: '+a+' + '+b+' + '+a+' + '+b+' = '+(2*a+2*b)+' cm lang, '+c+' cm hoch. Grund- und Deckfläche je '+a+' cm × '+b+' cm (eine Möglichkeit).',solFig:it}}
+  if(k==='mo'){const ty=pick(['q','t','z']);
+    if(ty==='q'){const a=R(2,9),b=R(2,7),h=R(2,9);return{text:'Berechne die Mantelfläche M und die Oberfläche S des Quaders.',fig:figQuader(a,b,h),sol:'M = 2 · ('+a+' + '+b+') · '+h+' = '+2*(a+b)*h+' cm²; S = 2 · '+a*b+' + '+2*(a+b)*h+' = '+(2*a*b+2*(a+b)*h)+' cm²'}}
+    if(ty==='t'){const [p,q,s]=pick(TRI),L=R(4,12);return{text:'Berechne die Mantelfläche M und die Oberfläche S des Dreiecksprismas (rechter Winkel zwischen a und b).',fig:figTriL(p,q,s,L),sol:'M = ('+F(p)+' + '+F(q)+' + '+F(s)+') · '+L+' = '+F((p+q+s)*L)+' cm²; G = '+F(p*q/2)+' cm²; S = 2 · '+F(p*q/2)+' + '+F((p+q+s)*L)+' = '+F(p*q+(p+q+s)*L)+' cm²'}}
+    const r=R(2,7),h=R(3,12);return{text:'Berechne die Mantelfläche M und die Oberfläche S des Zylinders. Runde auf 2 Stellen.',fig:cylS(r,h,{lr:'r = '+r+' cm',lh:'h = '+h+' cm'}),sol:'M = 2 · π · '+r+' · '+h+' ≈ '+F(2*PI*r*h)+' cm²; S = 2 · π · '+r+'² + M ≈ '+F(2*PI*r*r+2*PI*r*h)+' cm²'}}
+  if(k==='vol'){const ty=pick(['q','t','z','tr']);
+    if(ty==='q'){const a=R(2,12),b=R(2,9),h=R(2,10);return{text:'Berechne das Volumen des Quaders.',fig:figQuader(a,b,h),sol:'V = '+a+' · '+b+' · '+h+' = '+a*b*h+' cm³'}}
+    if(ty==='t'){const [p,q,s]=pick(TRI),L=R(4,12);return{text:'Berechne das Volumen des Dreiecksprismas (rechter Winkel zwischen a und b).',fig:figTriL(p,q,s,L),sol:'G = '+F(p)+' · '+F(q)+' : 2 = '+F(p*q/2)+' cm²; V = '+F(p*q/2)+' · '+L+' = '+F(p*q/2*L)+' cm³'}}
+    if(ty==='z'){const r=R(2,7),h=R(3,12);return{text:'Berechne das Volumen des Zylinders. Runde auf 2 Stellen. Wie viele Liter sind das?',fig:cylS(r,h,{lr:'r = '+r+' cm',lh:'h = '+h+' cm'}),sol:'V = π · '+r+'² · '+h+' ≈ '+F(PI*r*r*h)+' cm³ ≈ '+F(PI*r*r*h/1000,3)+' l'}}
+    const a=R(6,10),c=R(2,a-2),t=R(2,5),L=R(5,12);return{text:'Berechne das Volumen des Prismas. Die Grundfläche ist ein Trapez.',fig:figTrapL(a,c,t,L),sol:'G = ('+a+' + '+c+') : 2 · '+t+' = '+F((a+c)/2*t)+' cm²; V = '+F((a+c)/2*t)+' · '+L+' = '+F((a+c)/2*t*L)+' cm³'}}
+  if(k==='umr'){const cs=[conv(P1),conv(P1),conv(P1),conv(P2),conv(P2),conv(P2)];return{text:'Rechne um.',list:cs.map((c,i)=>'abcdef'[i]+') '+F4(c.v)+' '+c.f+' = ______________ '+c.t),sol:cs.map((c,i)=>'abcdef'[i]+') '+F4(c.a)+' '+c.t).join('   ')}}
+}
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function viewAB(){
+  $('#main').innerHTML=`<h2>Arbeitsblatt drucken</h2><p class="lead">Optional: Lieber auf Papier üben? Stelle dir ein Übungsblatt zusammen. Jedes Blatt hat neue Zahlen. Du bekommst eine PDF-Datei mit Aufgaben und einem Lösungsblatt. Drucke sie aus oder bearbeite die PDF-Datei auf dem iPad.</p>
+  <div class="box"><h3>1. Aufgabenarten wählen</h3><div class="goals">${ABCAT.map(c=>'<label class="goal" for="ab_'+c.k+'"><input type="checkbox" id="ab_'+c.k+'" '+(abOn(c)?'checked':'')+'><span class="txt">'+esc(c.l)+'</span></label>').join('')}</div>
+  <h3 style="margin-top:18px">2. Anzahl Aufgaben</h3><div class="row" style="margin-top:0">${[4,6,8,10].map(n=>'<label class="opt" for="abn'+n+'" style="flex:0 0 auto"><input type="radio" name="abn" id="abn'+n+'" value="'+n+'" '+(n===6?'checked':'')+'><span>'+n+'</span></label>').join('')}</div>
+  <h3 style="margin-top:18px">3. Lösungen</h3><label class="goal" for="ab_sol"><input type="checkbox" id="ab_sol" checked><span class="txt">Lösungsblatt am Schluss anhängen</span></label>
+  <div class="row"><button class="btn" id="abgo">PDF erstellen</button><span id="abmsg" class="hint"></span></div></div>
+  <p class="foot">Auf jedem Blatt steht eine Blatt-Nummer. Mit derselben Nummer entsteht wieder dasselbe Blatt: <input id="abseed" inputmode="numeric" placeholder="Blatt-Nr. (leer = neu)" style="font:inherit;width:12em;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--fg)"></p>`;
+  AB_PRE=null;$('#abgo').addEventListener('click',makeAB);
+}
+function pdfTxt(s){return String(s).replace(/<[^>]+>/g,'').replace(/−/g,'-').replace(/≈/g,'~').replace(/→/g,'->').replace(/[’]/g,"'").replace(/…/g,'...').replace(/≠/g,'nicht =').replace(/✓/g,'ok').replace(/π/g,'pi').replace(/★/g,'*').replace(/₁/g,'1').replace(/₂/g,'2').replace(/–/g,'-')}
+function ptext(doc,txt,x,y,o={}){const lines=Array.isArray(txt)?txt:[txt],fs=doc.getFontSize(),lh=o.lh||fs*.46;
+  lines.forEach((ln,li)=>{const parts=String(ln).split(/([²³])/);const wOf=p=>/[²³]/.test(p)?doc.getTextWidth(p==='²'?'2':'3')*.7:doc.getTextWidth(p);
+    const tw=parts.reduce((a,p)=>a+(p?wOf(p):0),0);let cx=o.align==='right'?x-tw:o.align==='center'?x-tw/2:x;const yy=y+li*lh;
+    parts.forEach(p=>{if(!p)return;if(/[²³]/.test(p)){doc.setFontSize(fs*.7);doc.text(p==='²'?'2':'3',cx,yy-fs*.13);doc.setFontSize(fs);cx+=wOf(p)}else{doc.text(p,cx,yy);cx+=doc.getTextWidth(p)}})})}
+function pdfFig(doc,items,bx,by,bw,bh,o={}){const ps=items.filter(i=>i.t==='p');const[ax0,ay0,ax1,ay1]=bbox(ps);const w=Math.max(ax1-ax0,.5),h=Math.max(ay1-ay0,.5);
+  const s=Math.min(o.maxS||9,(bw-26)/w,(bh-9)/h),ox=bx+13+((bw-26)-w*s)/2;const X=x=>ox+(x-ax0)*s,Y=y=>by+4.5+(ay1-y)*s;
+  ps.forEach(it=>{const cls=it.cls||'fn';const fill=/\bfa\b/.test(cls)?[227,235,251]:/\bfb\b/.test(cls)?[205,236,208]:/\bfw\b/.test(cls)?[255,255,255]:cls==='dot'?[30,30,30]:null;const stroke=!/\bff\b/.test(cls)&&cls!=='dot';
+    doc.setDrawColor(...(/\bhl\b/.test(cls)?[192,0,0]:[30,30,30]));doc.setLineWidth(/thin/.test(cls)?0.2:0.4);doc.setLineDashPattern(it.dash?[1.2,0.9]:[],0);if(fill)doc.setFillColor(...fill);
+    const pts=it.pts.map(([x,y])=>[X(x),Y(y)]),seg=[];for(let i=1;i<pts.length;i++)seg.push([pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]]);const closed=it.close!==false;
+    if(!closed&&!stroke)return;const style=closed&&fill?(stroke?'FD':'F'):'S';doc.lines(seg,pts[0][0],pts[0][1],[1,1],style,closed)});
+  doc.setLineDashPattern([],0);doc.setLineWidth(0.3);doc.setDrawColor(0);
+  items.forEach(it=>{if(it.t!=='t')return;doc.setFontSize(8.5);doc.setTextColor(...(it.c==='hlt'?[192,0,0]:[0,0,0]));doc.setFont('helvetica',it.b?'bold':'normal');ptext(doc,pdfTxt(it.s),X(it.p[0]),Y(it.p[1])+1.1,{align:it.a==='s'?'left':it.a==='e'?'right':'center'})});
+  doc.setTextColor(0);doc.setFontSize(10);doc.setFont('helvetica','normal')}
+function makeAB(){
+  const msg=$('#abmsg');
+  if(!window.jspdf){msg.textContent='Die PDF-Funktion konnte nicht geladen werden. Prüfe die Internetverbindung.';return}
+  const cats=ABCAT.filter(c=>$('#ab_'+c.k).checked);
+  if(!cats.length){msg.textContent='Wähle mindestens eine Aufgabenart.';return}
+  const n=+document.querySelector('input[name=abn]:checked').value, withSol=$('#ab_sol').checked;
+  let seed=parseInt(($('#abseed').value||'').replace(/\D/g,''),10); if(!seed)seed=1000+Math.floor(Math.random()*9000);
+  const old=RNG; RNG=mulberry(seed*7919+n*31+cats.map(c=>c.k).join('').length);
+  const tasks=[];const used={};
+  for(let i=0;i<n;i++){const c=cats[i%cats.length];let t,tr=0;do{t=abTask(c.k);tr++}while(used[t.text+t.sol]&&tr<40);used[t.text+t.sol]=1;tasks.push(t)}
+  RNG=old;
+  const {jsPDF}=window.jspdf; const doc=new jsPDF({unit:'mm',format:'a4'});
+  const L=20,W=170,BLUE=[19,40,90],GREY=[128,128,128];
+  function head(title){
+    doc.setFillColor(...BLUE); doc.lines([[30,0],[-5,16],[-30,0]],162,6,[1,1],'F',true);
+    doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(15);doc.text('MA',172.5,16.5,{align:'center'});
+    doc.setTextColor(...GREY);doc.setFontSize(10);doc.text(pdfTxt('LU 19 Grundfläche · Höhe'),L,16);doc.text('Übungsblatt Nr. '+seed,L+77,16);
+    doc.setTextColor(0,0,0);doc.setFontSize(14);doc.text(pdfTxt(title),L,25);doc.setDrawColor(0);doc.setLineWidth(0.3);doc.line(L,27,L+W,27);
+    doc.setFont('helvetica','normal');doc.setFontSize(10);
+  }
+  function grid(x,y,w,h){doc.setDrawColor(190,200,215);doc.setLineWidth(0.15);for(let i=0;i<=w;i+=5)doc.line(x+i,y,x+i,y+h);for(let j=0;j<=h;j+=5)doc.line(x,y+j,x+w,y+j);doc.setDrawColor(0)}
+  tasks.forEach(t=>{t._lines=doc.splitTextToSize(pdfTxt(t.text),W-20);const th=t._lines.length*4.6+1.5;
+    t._need=th+(t.grid?t.grid[1]+4:t.fig?50:t.list?Math.ceil(t.list.length/2)*9+4:(t.lines||3)*5+12)+6});
+  const order=[];let rest=tasks.slice(),yy=48;
+  while(rest.length){let k=rest.findIndex(t=>yy+t._need<=284);if(k<0){yy=34;k=0}order.push(rest[k]);yy+=rest[k]._need;rest.splice(k,1)}
+  head('Übungsblatt: Grundfläche · Höhe');
+  doc.text('Name: ______________________________',L,35);doc.text('Datum: ________________',L+110,35);
+  doc.setFontSize(9);doc.setTextColor(...GREY);doc.text(pdfTxt('Arbeite mit Bleistift, Geodreieck und Taschenrechner. Schreibe immer: Formel -> Einsetzen -> Resultat mit Einheit.'),L,41);doc.setTextColor(0);doc.setFontSize(10);
+  let y=48;
+  order.forEach((t,i)=>{
+    if(y+t._need>284){doc.addPage();head('Übungsblatt: Grundfläche · Höhe');y=34}
+    doc.setFont('helvetica','bold');doc.text('Aufgabe '+(i+1),L,y);doc.setFont('helvetica','normal');ptext(doc,t._lines,L+20,y);y+=t._lines.length*4.6+1.5;
+    if(t.grid){grid(L+20,y,t.grid[0],t.grid[1]);y+=t.grid[1]+4}
+    else if(t.fig){pdfFig(doc,t.fig,L+18,y,62,46);grid(L+82,y,85,45);y+=50}
+    else if(t.list){t.list.forEach((s,j)=>{ptext(doc,pdfTxt(s),L+20+(j%2)*78,y+4+Math.floor(j/2)*9)});y+=Math.ceil(t.list.length/2)*9+4}
+    else{grid(L+20,y,150,(t.lines||3)*5);y+=(t.lines||3)*5+2;doc.text('Resultat: ______________________',L+20,y+4);y+=8}
+    y+=4;t._nr=i+1;
+  });
+  if(withSol){doc.addPage();head('Lösungen zum Übungsblatt Nr. '+seed);y=36;
+    order.forEach(t=>{const l1=doc.splitTextToSize(pdfTxt(t.sol),t.solFig?78:W-24);const h=t.solFig?Math.max(40,l1.length*4.6+6):l1.length*4.6+5;
+      if(y+h>285){doc.addPage();head('Lösungen zum Übungsblatt Nr. '+seed);y=36}
+      doc.setFont('helvetica','bold');doc.text('Aufgabe '+t._nr+':',L,y);doc.setFont('helvetica','normal');ptext(doc,l1,L+22,y);
+      if(t.solFig)pdfFig(doc,t.solFig,L+102,y-4,68,40);y+=h});
+    doc.setFontSize(9);doc.setTextColor(...GREY);doc.text(pdfTxt('Vergleiche zuerst deinen Weg, dann das Resultat. Bei pi-Aufgaben sind kleine Rundungsunterschiede richtig.'),L,Math.min(y+4,288));
+  }
+  const pages=doc.getNumberOfPages();for(let p=1;p<=pages;p++){doc.setPage(p);doc.setFontSize(8);doc.setTextColor(...GREY);doc.text('Seite '+p+' von '+pages,L+W,290,{align:'right'})}
+  const fn='Uebungsblatt_Grundflaeche_Hoehe_'+seed+'.pdf';
+  try{doc.save(fn);msg.textContent='Fertig: '+fn+' (Blatt-Nr. '+seed+')';}catch(e){msg.textContent='Die PDF konnte hier nicht gespeichert werden. Öffne die Lernseite in einem normalen Browserfenster.';}
+  return doc;
+}
+function route(){
+  let h=(location.hash||'').slice(1);if(!S[h]&&h!=='test'&&h!=='ab'&&h!=='sb')h='lernziele';
+  nav(h);if(h==='lernziele')viewStart();else if(h==='test')viewTest();else if(h==='ab')viewAB();else if(h==='sb')viewSB();else viewSec(h);
+  $('#side').classList.remove('open');$('#menuBtn').setAttribute('aria-expanded','false');window.scrollTo(0,0);
+}
+$('#menuBtn').addEventListener('click',()=>{const o=$('#side').classList.toggle('open');$('#menuBtn').setAttribute('aria-expanded',o)});
+window.addEventListener('hashchange',route);route();
+
+</script>
+</body>
+</html>
