@@ -218,6 +218,15 @@ svg .solg{stroke:var(--ok);stroke-width:3;opacity:.75}
 .fcard svg{max-width:100%;height:auto}
 .fn2{font-size:.85rem;color:var(--muted)}
 .fo{font-weight:700;color:var(--accent-ink);line-height:1.35}
+
+.langsw{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 10px}
+.langsw>span{font-weight:700;font-size:.9rem;color:var(--muted)}
+.langsw .btn{padding:6px 12px;font-size:.9rem}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{font:inherit;font-size:.88rem;font-weight:600;border:none;background:none;color:var(--muted);padding:6px 11px;cursor:pointer;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:none}
+.seg button.on{background:var(--band);color:var(--band-fg)}
+.seg button:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
 </style>
 </head>
 <body>
@@ -847,11 +856,104 @@ function viewStart(){
   <p class="foot">Grundlage: mathbuch 2, LU 19. Deine Haken werden nur auf diesem Gerät gespeichert. Übungsresultate werden nicht gespeichert. Lieber auf Papier? Unter <a href="#ab">Arbeitsblatt drucken</a> erstellst du ein Übungsblatt mit Lösungen.</p>`;
   document.querySelectorAll('.goal input').forEach(i=>i.addEventListener('change',()=>{done[i.dataset.g]=i.checked;save();const c=GOALS.filter(g=>done[g[0]]).length;$('#cnt').textContent=c;$('#bar').style.width=(c/GOALS.length*100)+'%'}));
 }
+/* ---------- Einfache Sprache und Vorlesen (gleich wie Lernseite Imperialismus) ---------- */
+let EASY=false;try{EASY=localStorage.getItem(LS+'-easy')==='1'}catch(e){}
+try{speechSynthesis.getVoices()}catch(e){}
+function thHead(has){
+  return '<div class="langsw">'+(has?'<span>Theorie:</span><div class="seg"><button type="button" data-lang="n" class="'+(EASY?'':'on')+'">Normal</button><button type="button" data-lang="e" class="'+(EASY?'on':'')+'">Einfache Sprache</button></div>':'')+('speechSynthesis' in window?'<button class="btn sec" id="speak" type="button">🔊 Vorlesen</button>':'')+'</div>';
+}
+/* Zeichen so umschreiben, dass die Sprachausgabe sie richtig vorliest */
+const UNIT={mm:'Milli',cm:'Zenti',dm:'Dezi',m:''};
+function sayFix(t){
+  return t
+    .replace(/(^|[^A-Za-zÄÖÜäöü])(mm|cm|dm|m)²/g,(a,p,u)=>p+(UNIT[u]?' Quadrat'+UNIT[u].toLowerCase()+'meter':' Quadratmeter'))
+    .replace(/(^|[^A-Za-zÄÖÜäöü])(mm|cm|dm|m)³/g,(a,p,u)=>p+(UNIT[u]?' Kubik'+UNIT[u].toLowerCase()+'meter':' Kubikmeter'))
+    .replace(/µm/g,' Mikrometer').replace(/\bkJ\b/g,'Kilojoule').replace(/\bkcal\b/g,'Kilokalorien')
+    .replace(/²/g,' hoch 2').replace(/³/g,' hoch 3').replace(/₁/g,' 1').replace(/₂/g,' 2')
+    .replace(/(\d)\s*\/\s*(\d)/g,'$1 durch $2')
+    .replace(/\s:\s/g,' geteilt durch ')
+    .replace(/[·×]/g,' mal ').replace(/≈/g,' ungefähr ').replace(/−/g,' minus ').replace(/=/g,' gleich ')
+    .replace(/→/g,', ').replace(/\|/g,' und ').replace(/π/g,' Pi ').replace(/%/g,' Prozent')
+    .replace(/\s+/g,' ');
+}
+function speakStop(){try{speechSynthesis.cancel()}catch(e){}const b=document.getElementById('speak');if(b)b.textContent='🔊 Vorlesen'}
+function speakToggle(el,btn){
+  if(speechSynthesis.speaking||speechSynthesis.pending){speakStop();return}
+  const c=el.cloneNode(true);c.querySelectorAll('svg,.cap,a.btn,script,style,.flow i').forEach(x=>x.remove());
+  c.querySelectorAll('h3,p,li,td,th,div.merk,div.formel,tr,.flow span,.fn2,.fo').forEach(x=>x.append(' . '));
+  const txt=sayFix(c.textContent).replace(/(\s\.){2,}/g,' .').replace(/«|»/g,'');
+  const parts=txt.match(/[^.!?:]+[.!?:]+|[^.!?:]+$/g)||[];
+  const vs=speechSynthesis.getVoices();const v=vs.find(x=>/de-CH/i.test(x.lang))||vs.find(x=>/^de/i.test(x.lang));
+  parts.map(t=>t.trim()).filter(t=>t.replace(/[.\s]/g,'').length).forEach((t,i,a)=>{const u=new SpeechSynthesisUtterance(t);u.lang=v?v.lang:'de-DE';if(v)u.voice=v;u.rate=.95;if(i===a.length-1)u.onend=speakStop;speechSynthesis.speak(u)});
+  btn.textContent='⏹ Stopp';
+}
+function bindTheory(h){
+  const body=$('#thbody');if(!body)return;
+  const sp=$('#speak');if(sp)sp.addEventListener('click',()=>speakToggle(body,sp));
+  document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>{speakStop();EASY=b.dataset.lang==='e';try{localStorage.setItem(LS+'-easy',EASY?'1':'0')}catch(e){}document.querySelectorAll('[data-lang]').forEach(x=>x.classList.toggle('on',x===b));body.innerHTML=thSrc(h,EASY)}));
+}
+/* Vorlesen stoppen, wenn man das Register wechselt */
+document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('.tabs button,[data-go]'))speakStop()},true);
+window.addEventListener('pagehide',speakStop);
+/* Theorie in einfacher Sprache: kürzere Sätze, nur das Wichtigste */
+S.s1.easy=()=>`<p>Der <b>Flächeninhalt A</b> sagt, wie gross eine Fläche ist. Einheit: cm² oder m².</p>
+<p>Der <b>Umfang U</b> ist die Länge vom Rand. Einheit: cm oder m.</p>
+<div class="figgrid">${[[figRect(3.5,2.2,'a','b'),'Rechteck','A = a · b'],[figTri(4,2.5,1.2,'g','h'),'Dreieck','A = g · h : 2'],[figPar(3.4,2.2,1.2,'g','h'),'Parallelogramm','A = g · h'],[figTrap(4.4,2,2.2,1,'a','c','h'),'Trapez','A = (a + c) : 2 · h'],[figKreis(1.4,'r'),'Kreis','A = π · r²<br>U = 2 · π · r']].map(([f,n,t])=>'<div class="fcard">'+svgFig(f,{label:n,s:30})+'<div class="fn2">'+n+'</div><div class="fo">'+t+'</div></div>').join('')}</div>
+<div class="merk">Die <b>Höhe h</b> steht immer <b>senkrecht</b> auf der Grundseite. Dort ist ein rechter Winkel. Rechne nie mit der schrägen Seite.</div>
+<p><b>Beispiel Trapez:</b> a = 8 cm, c = 4 cm, h = 3 cm<br>A = (8 + 4) : 2 · 3 = 6 · 3 = <b>18 cm²</b></p>
+<p><b>Kreis:</b> r ist der Radius. Er ist halb so lang wie der Durchmesser d: r = d : 2.</p>`;
+
+S.s2.easy=()=>`<p>Viele Flächen sind aus einfachen Figuren zusammengesetzt. Es gibt zwei Wege:</p>
+<ul><li><b>Zerlegen:</b> Teile die Fläche in Rechtecke oder Dreiecke. Berechne jedes Stück. Zähle alles <b>zusammen</b>.</li>
+<li><b>Ergänzen:</b> Mach daraus ein grosses Rechteck. Rechne das Stück, das zu viel ist, <b>weg</b>.</li></ul>
+<div class="fig">${svgFig([fP([[0,0],[8,0],[8,3],[3,3],[3,6],[0,6]],{cls:'fa'}),fL([3,0],[3,3],{cls:'hl',dash:1}),fT([4,-.5],'8 cm'),fT([-.25,3],'6 cm',{a:'e'}),fT([1.5,6.45],'3 cm'),fT([8.25,1.5],'3 cm',{a:'s'}),fT([1.5,3],'A₁',{b:1}),fT([5.5,1.5],'A₂',{b:1}),
+  fP([[11,0],[19,0],[19,6],[11,6]],{cls:'fw',dash:1}),fP([[11,0],[19,0],[19,3],[14,3],[14,6],[11,6]],{cls:'fa'}),fT([16.5,4.5],'weg',{c:'hlt'})],{label:'Zerlegen und Ergänzen',maxW:560})}</div>
+<p><b>Zerlegen:</b> 18 cm² + 15 cm² = 33 cm²<br><b>Ergänzen:</b> 48 cm² − 15 cm² = 33 cm²</p>
+<div class="merk">Fehlt eine Länge? Nimm die ganze Seite und ziehe das bekannte Stück ab.</div>`;
+
+S.s3.easy=()=>`<div class="merk">Ein <b>Prisma</b> hat zwei gleiche Flächen, die genau übereinander liegen: die <b>Grundfläche</b> und die <b>Deckfläche</b>. Die Seitenflächen sind Rechtecke. Die <b>Höhe h</b> ist der Abstand zwischen den beiden Flächen.</div>
+<div class="fig">${svgFig([...prism(shiftP(ngon(5,1.8,PI/10),1.8,1.8),3.5,'stand',{hiG:1}),...shiftP2(prism([[0,0],[3.4,0],[1.7,2.6]],5,'lie',{hiG:1}),6,0),...shiftP2(cylS(1.5,3.5,{hiG:1}),13,0)],{label:'Fünfeckprisma, liegendes Dreiecksprisma und Zylinder',maxW:560})}</div>
+<p>Grün sind Grund- und Deckfläche. Das Prisma heisst nach seiner Grundfläche: Dreiecksprisma, Viereckprisma, Fünfeckprisma …</p>
+<p>Ein <b>Zylinder</b> hat zwei Kreise als Grund- und Deckfläche. Die runde Fläche dazwischen heisst <b>Mantel</b>.</p>
+<div class="merk"><b>Achtung:</b> Die Grundfläche ist nicht immer unten. Liegt das Prisma, ist sie vorne.</div>
+<p><b>Keine Prismen</b> sind Pyramide, Kegel und Kugel.</p>`;
+
+S.s4.easy=()=>`<p><b>Schrägbild eines Quaders</b> auf Häuschenpapier:</p>
+<ol><li>Zeichne die vordere Fläche genau so gross, wie sie ist.</li><li>Zeichne die Kanten nach hinten schräg: <b>1 cm Tiefe = 1 Häuschen schräg</b>.</li><li>Verbinde die hinteren Ecken.</li><li>Kanten, die man nicht sieht, zeichnest du <b>gestrichelt</b>.</li></ol>
+<div class="fig">${gridSvg(12,8,cubSeg(1,1,6,4,2),{face:[[1,1],[7,1],[7,5],[1,5]],u:20,texts:[[4,0.35,'3 cm'],[11.6,3.2,'2 cm tief','end']],label:'Schrägbild Quader 3 cm × 2 cm × 2 cm'})}<div class="cap">Quader 3 cm breit, 2 cm hoch, 2 cm tief.</div></div>
+<p><b>Netz:</b> Man klappt alle 6 Flächen eines Quaders auf. Dann liegen sie flach nebeneinander.</p>
+<div class="fig">${svgFig([...[[0,0,4,2],[4,0,3,2],[7,0,4,2],[11,0,3,2]].map(([x,y,w,h])=>fP([[x,y],[x+w,y],[x+w,y+h],[x,y+h]],{cls:'fa'})),fP([[0,-3],[4,-3],[4,0],[0,0]],{cls:'fb'}),fP([[0,2],[4,2],[4,5],[0,5]],{cls:'fb'}),fT([2,-3.45],'a'),fT([-.2,-1.5],'b',{a:'e'}),fT([14.2,1],'c',{a:'s'}),fT([2,-1.5],'G',{b:1}),fT([2,3.5],'D',{b:1})],{label:'Quadernetz',maxW:520})}</div>
+<p><a class="btn" href="#sb">✎ Zum Schrägbild-Trainer</a></p>
+<div class="merk">Gegenüberliegende Flächen eines Würfels berühren sich im Netz nie.</div>`;
+
+S.s5.easy=()=>`<p>Der <b>Mantel M</b> sind alle Seitenflächen zusammen. Grund- und Deckfläche gehören nicht dazu.</p>
+<p>Rollst du den Mantel ab, ist er ein <b>Rechteck</b>. Es ist so lang wie der Umfang u der Grundfläche und so hoch wie der Körper.</p>
+<div class="formel">M = u · h</div>
+<div class="fig">${svgFig([fP([[0,0],[9.42,0],[9.42,3],[0,3]],{cls:'fa'}),fP(arcE(2,4.5,1.5,1.5,0,2*PI),{cls:'fb'}),fP(arcE(2,-1.5,1.5,1.5,0,2*PI),{cls:'fb'}),fT([4.71,-.5+0],'u = 2 · π · r'),fT([9.7,1.5],'h',{a:'s'}),fT([2,4.5],'G',{b:1}),fT([2,-1.5],'G',{b:1}),fT([5.5,1.5],'M',{b:1})],{label:'Netz eines Zylinders',maxW:420})}<div class="cap">Netz eines Zylinders: Mantel = Rechteck u × h.</div></div>
+<p>Die <b>Oberfläche S</b> ist die ganze Hülle: zwei Grundflächen und der Mantel.</p>
+<div class="formel">S = 2 · G + M</div>
+<p><b>Beispiel Quader</b> 5 cm × 3 cm × 4 cm:<br>G = 5 · 3 = 15 cm²<br>u = 5 + 3 + 5 + 3 = 16 cm<br>M = 16 · 4 = 64 cm²<br>S = 2 · 15 + 64 = <b>94 cm²</b></p>`;
+
+S.s6.easy=()=>`<p><b>Raummasse</b> braucht man für das Volumen. Von einer Einheit zur nächsten rechnest du mal 1000 oder geteilt durch 1000.</p>
+<div class="tblwrap"><table class="t tb"><tr><td><b>m³</b></td><td>→ · 1000 →</td><td><b>dm³</b></td><td>→ · 1000 →</td><td><b>cm³</b></td><td>→ · 1000 →</td><td><b>mm³</b></td></tr></table></div>
+<p><b>Hohlmasse</b> braucht man für Flüssigkeiten. Meistens rechnest du mal 10. Nur von hl zu l ist es mal 100.</p>
+<div class="tblwrap"><table class="t tb"><tr><td><b>hl</b></td><td>· 100</td><td><b>l</b></td><td>· 10</td><td><b>dl</b></td><td>· 10</td><td><b>cl</b></td><td>· 10</td><td><b>ml</b></td></tr></table></div>
+<div class="merk"><b>1 dm³ = 1 l</b> und <b>1 cm³ = 1 ml</b><br>Zur kleineren Einheit: <b>mal</b>. Zur grösseren Einheit: <b>geteilt</b>.</div>
+<p>Beispiele: 2,5 l = 25 dl und 750 ml = 0,75 l</p>`;
+
+S.s7.easy=()=>`<p>Das <b>Volumen V</b> sagt, wie viel Platz ein Körper braucht.</p>
+<p>Stell dir vor: Du legst die Grundfläche viele Male übereinander, bis der Körper so hoch ist wie h.</p>
+<div class="formel">V = G · h</div>
+<div class="tblwrap"><table class="t"><tr><th>Körper</th><th>Volumen</th></tr><tr><td>Quader</td><td>V = a · b · h</td></tr><tr><td>Dreiecksprisma</td><td>V = (Dreiecksfläche) · h</td></tr><tr><td>Zylinder</td><td>V = π · r² · h</td></tr></table></div>
+<p><b>Beispiel Quader</b> 5 cm × 4 cm × 3 cm: V = 5 · 4 · 3 = <b>60 cm³</b></p>
+<div class="merk">Ist die Höhe gesucht? Rechne h = V : G.</div>`;
+function thSrc(h,e){const o=S[h];return e&&o.easy?o.easy():o.theory()}
+
 function viewSec(k){const s=S[k],gs=GOALS.filter(g=>g[2]===k);const i=ORDER.indexOf(k),nx=ORDER[i+1];
   $('#main').innerHTML=`<h2>Thema ${s.nr}: ${s.title}</h2>
   <div class="box goalbox"><h3>${gs.length>1?'Lernziele':'Lernziel'} <span class="hint" style="font-weight:400">· ${TEILE[s.teil]}</span></h3>${gs.map(([n,lv,,tx])=>'<div class="lzl"><span class="stars">'+lv+'</span> <b>'+n+'.</b> Ich kann '+esc(tx)+'</div>').join('')}</div>
   <div class="tabs" role="tablist"><button role="tab" data-tab="th">Theorie</button><button role="tab" data-tab="ex">Üben</button><button role="tab" data-tab="ab">Arbeitsblätter</button></div>
-  <div id="p_th" class="pane"><div class="box theory">${s.theory()}</div><div class="row"><button class="btn" data-go="ex">Jetzt üben →</button></div></div>
+  <div id="p_th" class="pane">${thHead(!!s.easy)}<div class="box theory" id="thbody">${EASY&&s.easy?s.easy():s.theory()}</div><div class="row"><button class="btn" data-go="ex">Jetzt üben →</button></div></div>
   <div id="p_ex" class="pane" hidden>
    <div class="nvrow"><span class="hint" style="margin:0">Niveau:</span>${[0,1,2,3].map(v=>'<button class="btn sec nvb'+(v===SECNV?' on':'')+'" data-nv="'+v+'">'+(v?'*'.repeat(v)+' '+NVL[v]:'Alle gemischt')+'</button>').join('')}</div>
    <div class="blkhead"><div id="cnt2" class="hint" style="font-size:.95rem"></div><button class="btn" id="newset">↻ Neue Aufgaben</button></div>
@@ -1019,7 +1121,7 @@ function makeAB(){
 }
 function route(){
   let h=(location.hash||'').slice(1);if(!S[h]&&h!=='test'&&h!=='ab'&&h!=='sb')h='lernziele';
-  nav(h);if(h==='lernziele')viewStart();else if(h==='test')viewTest();else if(h==='ab')viewAB();else if(h==='sb')viewSB();else viewSec(h);
+  speakStop();nav(h);if(h==='lernziele')viewStart();else if(h==='test')viewTest();else if(h==='ab')viewAB();else if(h==='sb')viewSB();else viewSec(h);bindTheory(h);
   $('#side').classList.remove('open');$('#menuBtn').setAttribute('aria-expanded','false');window.scrollTo(0,0);
 }
 $('#menuBtn').addEventListener('click',()=>{const o=$('#side').classList.toggle('open');$('#menuBtn').setAttribute('aria-expanded',o)});
