@@ -873,7 +873,7 @@ function sayFix(t){
     .replace(/(\d)\s*\/\s*(\d)/g,'$1 durch $2')
     .replace(/\s:\s/g,' geteilt durch ')
     .replace(/[·×]/g,' mal ').replace(/≈/g,' ungefähr ').replace(/−/g,' minus ').replace(/=/g,' gleich ')
-    .replace(/→/g,', ').replace(/\|/g,' und ').replace(/π/g,' Pi ').replace(/%/g,' Prozent')
+    .replace(/→/g,', ').replace(/\|/g,' und ').replace(/π/g,' Pi ').replace(/%/g,' Prozent').replace(/\+/g,' plus ')
     .replace(/\s+/g,' ');
 }
 function speakStop(){try{speechSynthesis.cancel()}catch(e){}const b=document.getElementById('speak');if(b)b.textContent='🔊 Vorlesen'}
